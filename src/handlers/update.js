@@ -119,10 +119,10 @@ export const updateUpdates = asyncHandler(async (req, res) => {
 	const update = await prisma.update.update({
 		where: {
 			id: req.params.id,
-			userId: req.user.id
 		},
-		data: {
-			...req.body
+		data: updateData,
+		include: {
+			updatePoints: true
 		}
 	})
 	res.json({ data: update })
