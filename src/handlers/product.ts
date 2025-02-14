@@ -4,28 +4,40 @@ import { createNotFoundError, createInputError } from '../utils/errors'
 
 // GET all products
 export const getProducts = asyncHandler(async (req, res) => {
-	const user = await prisma.user.findUnique({
+	const products = await prisma.product.findMany({
 		where: {
-			id: req.user.id
+			belongsToId: req.user.id
 		},
 		include: {
-			products: true
+			updates: {
+				select: {
+					id: true,
+					title: true,
+					status: true,
+					updatedAt: true
+				}
+			}
 		}
 	})
 
-	if (!user) {
-		throw createNotFoundError('Product not found')
+	if (products.length === 0) {
+		throw createNotFoundError('No products found')
 	}
 
-	res.json({ data: user.products })
+	res.json({ data: products })
 })
 
 // GET one product
 export const getOneProduct = asyncHandler(async (req, res) => {
-	const product = await prisma.product.findFirst({
+	const product = await prisma.product.findUnique({
 		where: {
-			id: req.params.id,
-			belongsToId: req.user.id
+			id_belongsToId: {
+				id: req.params.id,
+				belongsToId: req.user.id
+			}
+		},
+		include: {
+			updates: true
 		}
 	})
 
@@ -58,10 +70,12 @@ export const updateProduct = asyncHandler(async (req, res) => {
 		throw createInputError('Product name is required')
 	}
 
-	const existingProduct = await prisma.product.findFirst({
+	const existingProduct = await prisma.product.findUnique({
 		where: {
-			id: req.params.id,
-			belongsToId: req.user.id
+			id_belongsToId: {
+				id: req.params.id,
+				belongsToId: req.user.id
+			}
 		}
 	})
 
@@ -71,8 +85,10 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
 	const product = await prisma.product.update({ //update is find and write so we need where and data 
 		where: {
-			id: req.params.id,
-			belongsToId: req.user.id
+			id_belongsToId: {
+				id: req.params.id,
+				belongsToId: req.user.id
+			}
 		},
 		data: {
 			name: req.body.name
@@ -84,11 +100,16 @@ export const updateProduct = asyncHandler(async (req, res) => {
 
 // DELETE a product
 export const deleteProduct = asyncHandler(async (req, res) => {
-	const existingProduct = await prisma.product.findFirst({
+	const existingProduct = await prisma.product.findUnique({
 		where: {
-			id: req.params.id,
-			belongsToId: req.user.id
+			id_belongsToId: {
+				id: req.params.id,
+				belongsToId: req.user.id
+			}
 
+		},
+		include: {
+			updates: true
 		}
 	})
 
@@ -98,8 +119,10 @@ export const deleteProduct = asyncHandler(async (req, res) => {
 
 	const deleted = await prisma.product.delete({
 		where: {
-			id: req.params.id,
-			belongsToId: req.user.id
+			id_belongsToId: {
+				id: req.params.id,
+				belongsToId: req.user.id
+			}
 		}
 	})
 	res.status(204).end()
