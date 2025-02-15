@@ -9,10 +9,6 @@ const app = express()
 
 //order matters we always want to put our middleware on the top before our routes
 
-const customLogger = (message) => (req, res, next) => {
-	console.log(`hello from ${message}`)
-	next()
-}
 
 //morgan takes in an option what level of logging do u want 
 
@@ -25,9 +21,7 @@ app.use(express.urlencoded({ extended: true })) //urlencoded allows a client to 
 // Order matters in defining routes
 
 app.get('/', (req, res, next) => {
-	setTimeout(() => {
-		next(new Error('hello'))
-	}, 1)
+	res.json({ message: 'hello' })
 })
 // i dont want anyone accessing these routes unless they are authenticated so we will add the protect function we made in auth
 app.use('/api', protect, router) // every url in router will begin with /api
