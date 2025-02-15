@@ -2,14 +2,11 @@
   "compilerOptions": {
     "sourceMap": true,
     "module": "CommonJS",
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "outDir": "dist",
     "lib": ["esnext"],
     "esModuleInterop": true,
     "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
-    "declaration": true,
     "target": "ES6"
-  },
-  "include": ["./src/**/*.ts"]
+  }
 }
