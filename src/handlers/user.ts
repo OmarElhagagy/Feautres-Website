@@ -1,7 +1,23 @@
 import prisma from '../db'
+import { asyncHandler } from '../middleware/errorHandler'
 import { hashPassword, createJWT, comparePasswords } from '../modules/auth'
+import { APIError, ErrorTypes, createAuthError, createInputError, createNotFoundError } from '../utils/errors'
 
-export const createNewUser = async (req, res) => {
+export const createNewUser = asyncHandler(async (req, res) => {
+	if (!req.body.username || !req.body.password) {
+		throw createInputError('Username and passwrod are required')
+	}
+
+	const existingUser = await prisma.user.findUnique({
+		where: {
+			username: req.body.username
+		}
+	})
+
+	if (existingUser) {
+		throw createInputError('Username already exists')
+	}
+
 	const user = await prisma.user.create({
 		data: {
 			username: req.body.username,
@@ -11,22 +27,27 @@ export const createNewUser = async (req, res) => {
 
 	const token = createJWT(user)
 	res.json({ token })
-}
+})
 
 export const signin = async (req, res) => {
+	if (!req.body.username || !req.body.password) {
+		throw createInputError('Username and password are required')
+	}
+
 	const user = await prisma.user.findUnique({
 		where: {
 			username: req.body.username,
-			//password: comparePasswords(req.body.password, user.password)
 		}
 	})
 
-	const isValid = await comparePasswords(req.body.password, user?.password)
+	if (!user) {
+		createAuthError('Invalid username or password')
+	}
+
+	const isValid = await comparePasswords(req.body.password, user.password)
 
 	if (!isValid) {
-		res.status(401)
-		res.json({ message: 'Incorrect username or password' })
-		return
+		throw createAuthError('Invalid username or password')
 	}
 
 	const token = createJWT(user)
