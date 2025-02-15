@@ -1,6 +1,6 @@
 import { APIError, ErrorTypes } from "../utils/errors"
 
-export const errorHnadler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, next) => {
 	console.error('Error: ', {
 		message: err.message,
 		stack: err.stack,
