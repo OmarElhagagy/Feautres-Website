@@ -41,14 +41,13 @@ Run the following command to install the project dependencies:
 ```bash
 npm install
 
-## **Configure Environment**
-Copy `.env.example` to `.env` and add your settings (e.g., **PostgreSQL** credentials, **Azure** config):
-```bash
+Configure Environment
+Copy .env.example to .env and add your settings (e.g., PostgreSQL credentials, Azure config):
+bash
 DB_HOST=your-db-host
 DB_USER=your-db-user
 DB_PASSWORD=your-db-password
 DB_NAME=your-db-name
-PORT=3000
 
 ## **Run the Backend**
 Start the backend with:
