@@ -36,12 +36,7 @@ Check out the project (backend in action) here: [**Features Website**](https://y
    ```bash
    git clone https://github.com/yourusername/your-repo-name.git
 
-### **Install Dependencies**
-Run the following command to install the project dependencies:
-```bash
-npm install
-
-Configure Environment
+## **Configure Environment**
 Copy .env.example to .env and add your settings (e.g., PostgreSQL credentials, Azure config):
 bash
 DB_HOST=your-db-host
@@ -56,3 +51,8 @@ npm run dev
 
 ## **Contributing**
 We’re shaping this project together! Contributions—whether backend enhancements, feature ideas, or a future frontend—are welcome. Open an issue or submit a pull request to get involved.
+
+### **Install Dependencies**
+Run the following command to install the project dependencies:
+```bash
+npm install
