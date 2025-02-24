@@ -49,7 +49,7 @@ Start the backend with:
 ```bash
 npm run dev
 
-### **Install Dependencies**
+## **Install Dependencies**
 Run the following command to install the project dependencies:
 ```bash
 npm install
