@@ -41,7 +41,7 @@ Run the following command to install the project dependencies:
 ```bash
 npm install
 
-### **Configure Environment**
+## **Configure Environment**
 Copy `.env.example` to `.env` and add your settings (e.g., **PostgreSQL** credentials, **Azure** config):
 ```bash
 DB_HOST=your-db-host
@@ -50,10 +50,10 @@ DB_PASSWORD=your-db-password
 DB_NAME=your-db-name
 PORT=3000
 
-### **Run the Backend**
+## **Run the Backend**
 Start the backend with:
 ```bash
 npm run dev
 
-### **Contributing**
+## **Contributing**
 We’re shaping this project together! Contributions—whether backend enhancements, feature ideas, or a future frontend—are welcome. Open an issue or submit a pull request to get involved.
