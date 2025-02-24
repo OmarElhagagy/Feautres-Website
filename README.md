@@ -49,9 +49,6 @@ Start the backend with:
 ```bash
 npm run dev
 
-## **Contributing**
-We’re shaping this project together! Contributions—whether backend enhancements, feature ideas, or a future frontend—are welcome. Open an issue or submit a pull request to get involved.
-
 ### **Install Dependencies**
 Run the following command to install the project dependencies:
 ```bash
