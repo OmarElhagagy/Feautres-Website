@@ -1,25 +1,28 @@
-import merge from 'lodash.merge'
+import merge from 'lodash.merge';
 
-//make sure NODE_ENV is set
-process.env.NODE_ENV = process.env.NODE_ENV || "development"
-const stage = process.env.STAGE || "local"
+// Ensure NODE_ENV is set
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+const stage = process.env.STAGE || 'local';
 
-let envConfig
+// Import environment-specific configs dynamically
+let envConfig: Record<string, any>;
 
 if (stage === 'production') {
-	envConfig = require('../config/production').default
+  envConfig = (await import('../config/production.js')).default;
 } else if (stage === 'testing') {
-	envConfig = require('../config/testing')
+  envConfig = (await import('../config/testing.js')).default;
 } else {
-	envConfig = require('../config/local')
+  envConfig = (await import('../config/local.js')).default;
 }
 
+// Default configuration
 const defaultConfig = {
-	stage,
-	dbURL: process.env.DATABASE_URL,
-	jwtSecret: process.env.JWT_SECRET,
-	port: 4000,
-	logging: false
-}
+  stage,
+  dbURL: process.env.DATABASE_URL,
+  jwtSecret: process.env.JWT_SECRET,
+  port: 4000,
+  logging: false,
+};
 
-export default merge(defaultConfig, envConfig)
+// Merge default and environment-specific configs
+export default merge(defaultConfig, envConfig);

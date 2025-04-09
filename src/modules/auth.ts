@@ -1,57 +1,46 @@
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { Request, Response, NextFunction } from 'express';
+import { User } from '../types';
 
+export const comparePasswords = (password: string, hashedPassword: string): Promise<boolean> => {
+  return bcrypt.compare(password, hashedPassword);
+};
 
-export const comparePasswords = (password, hashedPassword) => {
-	return bcrypt.compare(password, hashedPassword)
-}
+export const hashPassword = (password: string): Promise<string> => {
+  return bcrypt.hash(password, 5);
+};
 
-export const hashPassword = (password) => {
-	return bcrypt.hash(password, 5)
-}
+export const createJWT = (user: User): string => {
+  const token = jwt.sign(
+    { id: user.id, username: user.username },
+    process.env.JWT_SECRET as string,
+    { expiresIn: '1d' } // Added expiration as suggested
+  );
+  return token;
+};
 
-// create jwt token for user 
-export const createJWT = (user) => {
-	//jwt.sign() creates a token with user data and secret key
-	const token = jwt.sign({
-		id: user.id,
-		username: user.username
-	},
-		process.env.JWT_SECRET
-	)
-	return token
-}
+export const protect = (req: Request, res: Response, next: NextFunction): void => {
+  const bearer = req.headers.authorization;
 
-// Middleware to protect routes
-export const protect = (req, res, next) => {
-	// gets authorization header
-	const bearer = req.headers.authorization
-	//check if headers exist
-	if (!bearer) {
-		res.status(401)
-		res.json({ message: "Not authorized" })
-		return
-	}
-	// Splits "Bearer token123" into ["Bearer", "token123"] and gets token
-	const [, token] = bearer.split(' ')//we want token to look like: bearer safnaksfnfnaolna <= random nums is out token
+  if (!bearer) {
+    res.status(401).json({ message: 'Not authorized' });
+    return;
+  }
 
-	if (!token) {
-		res.status(401)
-		res.json({ message: "Invalid token" })
-		return
-	}
+  const [, token] = bearer.split(' ');
+  if (!token) {
+    res.status(401).json({ message: 'Invalid token' });
+    return;
+  }
 
-	try {
-		//Verifies token with secret key
-		const user = jwt.verify(token, process.env.JWT_SECRET)
-		// Attaches user to request for later middleware/routes
-		req.user = user// if its the user we will attach it to the req
-		next()
-	} catch (error) {
-		console.log(error)
-		res.status(401)
-		res.json({ message: "Invalid token" })
-		return
-	}
-
-}
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET as string) as User;
+    req.user = user;
+    next();
+  } catch (error) {
+    console.log(error);
+    res.status(401).json({ message: 'Invalid token' });
+    return;
+  }
+};

@@ -1,6 +1,6 @@
-import prisma from '../db'
+import prisma from '../db.js'
 import { asyncHandler } from '../middleware/errorHandler'
-import { createInputError, createNotFoundError } from '../utils/errors'
+import { createInputError, createNotFoundError } from '../utils/errors.js'
 
 // GET UPDATES
 export const getUpdates = asyncHandler(async (req, res) => {

@@ -1,33 +1,49 @@
-import express from 'express'
-import router from './router'
-import morgan from 'morgan'
-import cors from 'cors'
-import { protect } from './modules/auth'
-import { createNewUser, signin } from './handlers/user'
-import { errorHandler } from './middleware/errorHandler'
-const app = express()
+import express from 'express';
+import router from './router.js';
+import morgan from 'morgan';
+import cors from 'cors';
+import { protect } from './modules/auth.js';
+import { createNewUser, signin } from './handlers/user.js';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { Request, Response } from 'express';
 
-//order matters we always want to put our middleware on the top before our routes
+dotenv.config();
 
+const app = express();
 
-//morgan takes in an option what level of logging do u want 
+// ESM equivalents of __dirname and __filename
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.use(cors())
-app.use(morgan('dev')) //its for logging requests
-app.use(express.json()) //this alows a client to send us json
-app.use(express.urlencoded({ extended: true })) //urlencoded allows a client to add things like a query string in parameters and its decodes and enocdes that propely if u dont do that it treats everything like a string for ex:'google.com?a=1, b=things'it takes whats after the ? and put it in an object
+app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
+// Serve frontend in production BEFORE other routes
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../dist/frontend');
+  app.use(express.static(frontendPath));
+  app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
 
-// Order matters in defining routes
+// API routes
+app.use('/api', protect, router);
+app.post('/user', createNewUser);
+app.post('/signin', signin);
 
-app.get('/', (req, res, next) => {
-	res.json({ message: 'hello' })
-})
-// i dont want anyone accessing these routes unless they are authenticated so we will add the protect function we made in auth
-app.use('/api', protect, router) // every url in router will begin with /api
-app.post('/user', createNewUser)
-app.post('/sigin', signin)
-app.use(errorHandler)
+// Default root route (only hit if not production or no static file)
+app.get('/', (req: Request, res: Response) => {
+  res.json({ message: 'hello' });
+});
 
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-export default app
+export default app;
