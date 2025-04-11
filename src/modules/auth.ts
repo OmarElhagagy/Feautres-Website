@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { User } from '../types.js';
+import { createAuthError } from '../utils/errors';
+import config from '../config';
 
 export const comparePasswords = (password: string, hashedPassword: string): Promise<boolean> => {
   return bcrypt.compare(password, hashedPassword);
@@ -42,5 +44,27 @@ export const protect = (req: Request, res: Response, next: NextFunction): void =
     console.log(error);
     res.status(401).json({ message: 'Invalid token' });
     return;
+  }
+};
+
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username, password } = req.body;
+    // TODO: Implement actual login logic
+    const token = jwt.sign({ id: '1', username }, config.jwtSecret);
+    res.json({ token });
+  } catch (error) {
+    next(createAuthError('Login failed'));
+  }
+};
+
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { username, password } = req.body;
+    // TODO: Implement actual registration logic
+    const token = jwt.sign({ id: '1', username }, config.jwtSecret);
+    res.json({ token });
+  } catch (error) {
+    next(createAuthError('Registration failed'));
   }
 };

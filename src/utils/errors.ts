@@ -23,4 +23,8 @@ export const createUnauthorizedError = (message = 'Unauthorized'): AppError => {
 
 export const createForbiddenError = (message = 'Forbidden'): AppError => {
   return new AppError(403, message);
+};
+
+export const createAuthError = (message: string): AppError => {
+  return new AppError(401, message);
 }; 
