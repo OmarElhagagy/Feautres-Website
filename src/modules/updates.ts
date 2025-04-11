@@ -40,7 +40,7 @@ export const updateUpdate = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
-export const deleteUpdate = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteUpdate = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     // TODO: Implement actual update deletion
     res.status(204).send();
