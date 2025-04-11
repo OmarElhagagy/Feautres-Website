@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import AuthContext from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 
 function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
