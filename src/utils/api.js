@@ -1,8 +1,6 @@
-import { API_ENDPOINTS } from '../config/api.js';
+import { API_ENDPOINTS, API_BASE_URL } from '../config/api.js';
 
-const API_URL = 'http://localhost:5000'; // Using the proxy for all requests
-
-export const fetchWithAuth = async (endpoint, options = {}) => {
+const fetchWithAuth = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
   
   const headers = {
@@ -14,7 +12,7 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
   
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers
   });
@@ -26,7 +24,6 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
         const error = await response.json();
         throw new Error(error.message || 'Something went wrong');
       } else {
-        // Handle non-JSON error responses
         const text = await response.text();
         if (text.includes('<!DOCTYPE')) {
           throw new Error('Server returned HTML instead of JSON. Check your API endpoint configuration.');
@@ -34,7 +31,7 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
         throw new Error('Request failed: ' + text);
       }
     } catch (e) {
-      throw e; // Re-throw the error
+      throw e;
     }
   }
   
@@ -49,145 +46,101 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
 export const api = {
   // Auth
   login: async (credentials) => {
-    const response = await fetch(API_ENDPOINTS.auth.login, {
+    return fetchWithAuth(API_ENDPOINTS.auth.login, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
-    return response.json();
   },
   
   register: async (userData) => {
-    const response = await fetch(API_ENDPOINTS.auth.register, {
+    return fetchWithAuth(API_ENDPOINTS.auth.register, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData),
     });
-    return response.json();
   },
   
   // Products
   getProducts: async () => {
-    const response = await fetch(API_ENDPOINTS.products.list, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-    return response.json();
+    return fetchWithAuth(API_ENDPOINTS.products.base);
   },
   
   getProduct: async (id) => {
-    const response = await fetch(API_ENDPOINTS.products.detail(id), {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-    return response.json();
+    return fetchWithAuth(API_ENDPOINTS.products.byId(id));
   },
   
   createProduct: async (productData) => {
-    const response = await fetch(API_ENDPOINTS.products.list, {
+    return fetchWithAuth(API_ENDPOINTS.products.base, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
       body: JSON.stringify(productData),
     });
-    return response.json();
   },
   
   updateProduct: async (id, productData) => {
-    const response = await fetch(API_ENDPOINTS.products.detail(id), {
+    return fetchWithAuth(API_ENDPOINTS.products.byId(id), {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
       body: JSON.stringify(productData),
     });
-    return response.json();
   },
   
   deleteProduct: async (id) => {
-    const response = await fetch(API_ENDPOINTS.products.detail(id), {
+    return fetchWithAuth(API_ENDPOINTS.products.byId(id), {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
     });
-    return response.json();
   },
   
   // Updates
   getUpdates: async () => {
-    const response = await fetch(API_ENDPOINTS.updates.list, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-    return response.json();
+    return fetchWithAuth(API_ENDPOINTS.updates.base);
   },
   
   getUpdate: async (id) => {
-    const response = await fetch(API_ENDPOINTS.updates.detail(id), {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-    return response.json();
+    return fetchWithAuth(API_ENDPOINTS.updates.byId(id));
   },
   
   createUpdate: async (updateData) => {
-    const response = await fetch(API_ENDPOINTS.updates.list, {
+    return fetchWithAuth(API_ENDPOINTS.updates.base, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
       body: JSON.stringify(updateData),
     });
-    return response.json();
   },
   
   updateUpdate: async (id, updateData) => {
-    const response = await fetch(API_ENDPOINTS.updates.detail(id), {
+    return fetchWithAuth(API_ENDPOINTS.updates.byId(id), {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
       body: JSON.stringify(updateData),
     });
-    return response.json();
   },
   
   deleteUpdate: async (id) => {
-    const response = await fetch(API_ENDPOINTS.updates.detail(id), {
+    return fetchWithAuth(API_ENDPOINTS.updates.byId(id), {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
     });
-    return response.json();
   },
   
   // Update Points
-  getUpdatePoints: () => fetchWithAuth('/api/updatepoint'),
+  getUpdatePoints: async (updateId) => {
+    return fetchWithAuth(API_ENDPOINTS.updates.points.base(updateId));
+  },
   
-  createUpdatePoint: (data) => fetchWithAuth('/api/updatepoint', {
-    method: 'POST',
-    body: JSON.stringify(data)
-  }),
+  createUpdatePoint: async (updateId, data) => {
+    return fetchWithAuth(API_ENDPOINTS.updates.points.base(updateId), {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
   
-  updateUpdatePoint: (id, data) => fetchWithAuth(`/api/updatepoint/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(data)
-  }),
+  updateUpdatePoint: async (updateId, pointId, data) => {
+    return fetchWithAuth(API_ENDPOINTS.updates.points.byId(updateId, pointId), {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
   
-  deleteUpdatePoint: (id) => fetchWithAuth(`/api/updatepoint/${id}`, {
-    method: 'DELETE'
-  })
+  deleteUpdatePoint: async (updateId, pointId) => {
+    return fetchWithAuth(API_ENDPOINTS.updates.points.byId(updateId, pointId), {
+      method: 'DELETE',
+    });
+  }
 };
 
 export default api;
