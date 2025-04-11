@@ -14,7 +14,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
-import { API_CONFIG } from './config/api.js';
+import { API_ENDPOINTS } from './config/api.js';
 
 dotenv.config();
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -42,7 +42,7 @@ app.get('/health', (_req, res) => {
 });
 
 // Public routes (no authentication required)
-app.post(API_CONFIG.ROUTES.AUTH.SIGNIN, async (req: Request, res: Response, next: NextFunction) => {
+app.post(API_ENDPOINTS.auth.login, async (req: Request, res: Response, next: NextFunction) => {
   console.log('POST /signin route hit');
   try {
     await signin(req, res, next);
@@ -56,7 +56,7 @@ app.post(API_CONFIG.ROUTES.AUTH.SIGNIN, async (req: Request, res: Response, next
   }
 });
 
-app.post(API_CONFIG.ROUTES.AUTH.REGISTER, async (req: Request, res: Response, next: NextFunction) => {
+app.post(API_ENDPOINTS.auth.register, async (req: Request, res: Response, next: NextFunction) => {
   console.log('POST /user route hit with body:', JSON.stringify(req.body));
   try {
     await createNewUser(req, res);
@@ -71,7 +71,7 @@ app.post(API_CONFIG.ROUTES.AUTH.REGISTER, async (req: Request, res: Response, ne
 });
 
 // Mount the router with /api prefix and protect all routes
-app.use(API_CONFIG.BASE_URL, protect, router);
+app.use('/api', protect, router);
 
 // Find the frontend dist directory
 const possibleFrontendPaths = [
@@ -104,9 +104,9 @@ if (frontendPath) {
   // Then set up a catch-all route for the SPA
   app.get('*', (req: Request, res: Response, next: NextFunction) => {
     // Skip the catch-all if it's an API route
-    if (req.path.startsWith(API_CONFIG.BASE_URL) || 
-        req.path === API_CONFIG.ROUTES.AUTH.SIGNIN || 
-        req.path === API_CONFIG.ROUTES.AUTH.REGISTER) {
+    if (req.path.startsWith('/api') || 
+        req.path === API_ENDPOINTS.auth.login || 
+        req.path === API_ENDPOINTS.auth.register) {
       return next();
     }
     
