@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api.js';
-import ProductList from '../components/ProductList.jsx';
-import ProductForm from '../components/ProductForm.jsx';
+import ProductList from '../components/products/ProductList.jsx';
+import ProductForm from '../components/products/ProductForm.jsx';
 
 function Products() {
   const [products, setProducts] = useState([]);

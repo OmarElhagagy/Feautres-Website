@@ -1,68 +1,73 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom'; // Remove BrowserRouter
-import AuthContext from './context/AuthContext';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
-import Updates from './pages/Updates';
-import UpdateDetail from './pages/UpdateDetail';
-import NewUpdate from './pages/NewUpdate';
-import NewUpdatePoint from './pages/NewUpdatePoint';
-import Header from './components/layout/Header';
-import Footer from './components/layout/Footer';
-import './index.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ErrorBoundary from './components/layout/ErrorBoundary.jsx';
+import Layout from './components/layout/Layout.jsx';
+import Home from './pages/Home.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import Products from './pages/Products.jsx';
+import ProductDetail from './pages/ProductDetail.jsx';
+import Updates from './pages/Updates.jsx';
+import UpdateDetail from './pages/UpdateDetail.jsx';
+import NewUpdate from './pages/NewUpdate.jsx';
+import NewUpdatePoint from './pages/NewUpdatePoint.jsx';
+import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return !isAuthenticated ? children : <Navigate to="/dashboard" />;
+};
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-
-  useEffect(() => {
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ id: payload.id, username: payload.username });
-      } catch (error) {
-        console.error('Invalid token', error);
-        logout();
-      }
-    }
-  }, [token]);
-
-  const login = (newToken) => {
-    localStorage.setItem('token', newToken);
-    setToken(newToken);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-  };
-
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
-      <div className="min-h-screen flex flex-col"> {/* Remove <Router> */}
-        <Header />
-        <div className="flex-grow container mx-auto px-4 py-8">
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
-            <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
-            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-            <Route path="/products" element={user ? <Products /> : <Navigate to="/login" />} />
-            <Route path="/products/:id" element={user ? <ProductDetail /> : <Navigate to="/login" />} />
-            <Route path="/updates" element={user ? <Updates /> : <Navigate to="/login" />} />
-            <Route path="/updates/:id" element={user ? <UpdateDetail /> : <Navigate to="/login" />} />
-            <Route path="/updates/new" element={user ? <NewUpdate /> : <Navigate to="/login" />} />
-            <Route path="/updates/:updateId/points/new" element={user ? <NewUpdatePoint /> : <Navigate to="/login" />} />
+            {/* Public Routes */}
+            <Route path="/login" element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            } />
+            <Route path="/register" element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            } />
+
+            {/* Protected Routes */}
+            <Route path="/" element={
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
+            }>
+              <Route index element={<Home />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="products">
+                <Route index element={<Products />} />
+                <Route path=":id" element={<ProductDetail />} />
+              </Route>
+              <Route path="updates">
+                <Route index element={<Updates />} />
+                <Route path=":id" element={<UpdateDetail />} />
+                <Route path="new" element={<NewUpdate />} />
+                <Route path=":updateId/points/new" element={<NewUpdatePoint />} />
+              </Route>
+            </Route>
+
+            {/* Catch all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </div>
-        <Footer />
-      </div>
-    </AuthContext.Provider>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
