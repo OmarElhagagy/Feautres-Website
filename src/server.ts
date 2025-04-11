@@ -59,7 +59,7 @@ app.post(API_CONFIG.ROUTES.AUTH.SIGNIN, async (req: Request, res: Response, next
 app.post(API_CONFIG.ROUTES.AUTH.REGISTER, async (req: Request, res: Response, next: NextFunction) => {
   console.log('POST /user route hit with body:', JSON.stringify(req.body));
   try {
-    await createNewUser(req, res, next);
+    await createNewUser(req, res);
     if (!res.headersSent) {
       console.log('Warning: POST /user handler did not send a response');
       return next();

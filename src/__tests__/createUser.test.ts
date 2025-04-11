@@ -26,4 +26,22 @@ describe('user handler', () => {
     await user.createNewUser(req, res, next);
     expect(res.json).toHaveBeenCalledWith({ token: 'mock-token' });
   });
+
+  it('should create a new user', async () => {
+    const req = {
+      body: {
+        username: 'testuser',
+        password: 'password123'
+      }
+    } as Request;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    } as unknown as Response;
+
+    await user.createNewUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalled();
+  });
 });

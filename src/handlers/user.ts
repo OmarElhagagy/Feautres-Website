@@ -3,7 +3,6 @@ import asyncHandler from 'express-async-handler';
 import prisma from '../db.js';
 import { hashPassword, createJWT, comparePasswords } from '../modules/auth.js';
 import { createAuthError, createInputError } from '../utils/errors.js';
-import { User } from '../types.js';
 
 console.log("User handler module loaded");
 
