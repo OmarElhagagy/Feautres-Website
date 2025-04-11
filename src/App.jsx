@@ -14,60 +14,66 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
-const PrivateRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return !isAuthenticated ? children : <Navigate to="/dashboard" />;
-};
-
 function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
         <Router>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            } />
-            <Route path="/register" element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            } />
-
-            {/* Protected Routes */}
-            <Route path="/" element={
-              <PrivateRoute>
-                <Layout />
-              </PrivateRoute>
-            }>
-              <Route index element={<Home />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="products">
-                <Route index element={<Products />} />
-                <Route path=":id" element={<ProductDetail />} />
-              </Route>
-              <Route path="updates">
-                <Route index element={<Updates />} />
-                <Route path=":id" element={<UpdateDetail />} />
-                <Route path="new" element={<NewUpdate />} />
-                <Route path=":updateId/points/new" element={<NewUpdatePoint />} />
-              </Route>
-            </Route>
-
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <AppRoutes />
         </Router>
       </AuthProvider>
     </ErrorBoundary>
+  );
+}
+
+function AppRoutes() {
+  const { isAuthenticated } = useAuth();
+
+  const PrivateRoute = ({ children }) => {
+    return isAuthenticated ? children : <Navigate to="/login" />;
+  };
+
+  const PublicRoute = ({ children }) => {
+    return !isAuthenticated ? children : <Navigate to="/dashboard" />;
+  };
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      } />
+      <Route path="/register" element={
+        <PublicRoute>
+          <Register />
+        </PublicRoute>
+      } />
+
+      {/* Protected Routes */}
+      <Route path="/" element={
+        <PrivateRoute>
+          <Layout />
+        </PrivateRoute>
+      }>
+        <Route index element={<Home />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="products">
+          <Route index element={<Products />} />
+          <Route path=":id" element={<ProductDetail />} />
+        </Route>
+        <Route path="updates">
+          <Route index element={<Updates />} />
+          <Route path=":id" element={<UpdateDetail />} />
+          <Route path="new" element={<NewUpdate />} />
+          <Route path=":updateId/points/new" element={<NewUpdatePoint />} />
+        </Route>
+      </Route>
+
+      {/* Catch all route */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
