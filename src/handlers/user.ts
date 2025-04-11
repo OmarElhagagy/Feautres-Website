@@ -1,46 +1,37 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import asyncHandler from 'express-async-handler';
-import prisma from '../db';
-import { hashPassword, createJWT, comparePasswords } from '../modules/auth';
-import { createAuthError, createInputError } from '../utils/errors';
-import { User } from '../types';
+import prisma from '../db.js';
+import { hashPassword, createJWT, comparePasswords } from '../modules/auth.js';
+import { createAuthError, createInputError } from '../utils/errors.js';
+import { User } from '../types.js';
 
 console.log("User handler module loaded");
 
-export const createNewUser = asyncHandler(async (req: Request, res: Response) => {
-  console.log("Creating new user with data:", req.body);
-  
-  if (!req.body.username || !req.body.password) {
-    console.log("Missing username or password");
-    return res.status(400).json({ message: 'Username and password are required' });
+export const createNewUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    throw createInputError('Username and password are required');
   }
-  
-  try {
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        username: req.body.username,
-      },
-    });
-    
-    if (existingUser) {
-      console.log("Username already exists:", req.body.username);
-      return res.status(400).json({ message: 'Username already exists' });
-    }
-    
-    const user = await prisma.user.create({
-      data: {
-        username: req.body.username,
-        password: await hashPassword(req.body.password),
-      },
-    });
-    
-    const token = createJWT(user);
-    console.log("User created successfully, token generated");
-    return res.status(201).json({ token });
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return next(error);
+
+  const existingUser = await prisma.user.findUnique({
+    where: { username },
+  });
+
+  if (existingUser) {
+    throw createAuthError('Username already exists');
   }
+
+  const hashedPassword = await hashPassword(password);
+  const user = await prisma.user.create({
+    data: {
+      username,
+      password: hashedPassword,
+    },
+  });
+
+  const token = createJWT(user);
+  res.status(201).json({ token });
 });
 
 export const signin = asyncHandler(async (req: Request, res: Response) => {

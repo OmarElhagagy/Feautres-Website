@@ -1,7 +1,7 @@
+import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { Request, Response, NextFunction } from 'express';
-import { User } from '../types';
+import { User } from '../types.js';
 
 export const comparePasswords = (password: string, hashedPassword: string): Promise<boolean> => {
   return bcrypt.compare(password, hashedPassword);

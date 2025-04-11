@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import prisma from '../db';
-import { createInputError, createNotFoundError } from '../utils/errors';
+import prisma from '../db.js';
+import { createInputError, createNotFoundError } from '../utils/errors.js';
 
 export const getUpdatedPoints = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user?.id) {
