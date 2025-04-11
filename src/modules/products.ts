@@ -42,7 +42,6 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
 
 export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
     // TODO: Implement actual product deletion
     res.status(204).send();
   } catch (error) {

@@ -42,7 +42,6 @@ export const updateUpdate = async (req: Request, res: Response, next: NextFuncti
 
 export const deleteUpdate = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
     // TODO: Implement actual update deletion
     res.status(204).send();
   } catch (error) {

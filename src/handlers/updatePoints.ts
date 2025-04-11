@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { Router } from 'express';
 import { handleInputErrors } from '../middleware/validation';
 import { createInputError, createNotFoundError } from '../utils/errors';
