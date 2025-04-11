@@ -1,13 +1,13 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 import RegisterForm from '../components/auth/RegisterForm';
 
 function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useContext(AuthContext);
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (formData) => {
@@ -16,7 +16,7 @@ function Register() {
     try {
       const response = await api.register(formData);
       if (response.token) {
-        login(response.token);
+        register(response.token);
         navigate('/dashboard');
       } else {
         setError('Registration failed');
