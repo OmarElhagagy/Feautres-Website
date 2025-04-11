@@ -1,15 +1,18 @@
 console.log('Starting server.ts - Debug Version 3');
 import express from 'express';
-import router from './router.js';
-import morgan from 'morgan';
 import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import { router } from './router';
+import { errorHandler } from './middleware/errorHandler';
+import { notFoundHandler } from './middleware/notFoundHandler';
+import config from './config';
 import { protect } from './modules/auth.js';
 import { createNewUser, signin } from './handlers/user.js';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Request, Response, NextFunction } from 'express';
-import { errorHandler } from './middleware/errorHandler.js';
 import fs from 'fs';
 import { API_CONFIG } from './config/api.js';
 
@@ -20,22 +23,23 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Enhanced logging middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
-// Basic security middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-
-app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 // Public routes (no authentication required)
 app.post(API_CONFIG.ROUTES.AUTH.SIGNIN, async (req: Request, res: Response, next: NextFunction) => {
@@ -128,24 +132,13 @@ if (frontendPath) {
   });
 }
 
-// 404 handler for all other routes
-app.use((req: Request, res: Response) => {
-  if (!res.headersSent) {
-    res.status(404).json({
-      error: 'Not Found',
-      message: `Route not found: ${req.method} ${req.path}`,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-// Error handler must be last
+// Error handling
+app.use(notFoundHandler);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`API base URL: ${API_CONFIG.BASE_URL}`);
+  console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 

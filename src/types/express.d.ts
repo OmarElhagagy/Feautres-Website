@@ -1,7 +1,12 @@
-import { User } from '../types'; // Import User from existing types
+import { JwtPayload } from 'jsonwebtoken';
 
-declare module 'express' {
-  interface Request {
-    user?: User; 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: JwtPayload & {
+        id: string;
+        username: string;
+      };
+    }
   }
 }

@@ -1,4 +1,7 @@
 import merge from 'lodash.merge';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Ensure NODE_ENV is set
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
@@ -26,3 +29,11 @@ const defaultConfig = {
 
 // Merge default and environment-specific configs
 export default merge(defaultConfig, envConfig);
+
+export const config = {
+  PORT: process.env.PORT || 3000,
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
+  DATABASE_URL: process.env.DATABASE_URL,
+};

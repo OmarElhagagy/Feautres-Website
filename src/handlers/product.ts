@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import prisma from '../db.js';
-import { createNotFoundError, createInputError } from '../utils/errors.js';
+import { createNotFoundError, createInputError } from '../utils/errors';
 
 export const getProducts = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user?.id) {
