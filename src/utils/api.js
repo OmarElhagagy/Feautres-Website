@@ -1,3 +1,5 @@
+import { API_ENDPOINTS } from '../config/api.js';
+
 const API_URL = 'http://localhost:5000'; // Using the proxy for all requests
 
 export const fetchWithAuth = async (endpoint, options = {}) => {
@@ -46,99 +48,129 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
 // API Functions
 export const api = {
   // Auth
-  login: (credentials) => {
-    return fetch(`${API_URL}/signin`, {
+  login: async (credentials) => {
+    const response = await fetch(API_ENDPOINTS.auth.login, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials)
-    })
-    .then(res => {
-      if (!res.ok) {
-        return res.text().then(text => {
-          try {
-            // Try to parse as JSON first
-            const error = JSON.parse(text);
-            throw new Error(error.message || 'Login failed');
-          } catch (e) {
-            // If it's not JSON, it's likely HTML
-            if (text.includes('<!DOCTYPE')) {
-              throw new Error('Server returned HTML instead of JSON. Check your API endpoint configuration.');
-            }
-            throw new Error('Login failed: ' + text);
-          }
-        });
-      }
-      return res.json();
+      body: JSON.stringify(credentials),
     });
+    return response.json();
   },
   
-  register: (userData) => {
-    console.log('Registering user with data:', userData);
-    return fetch(`${API_URL}/user`, {
+  register: async (userData) => {
+    const response = await fetch(API_ENDPOINTS.auth.register, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
-    })
-    .then(res => {
-        console.log('Registration response status:', res.status);
-        console.log('Response headers:', Object.fromEntries([...res.headers.entries()]));
-      if (!res.ok) {
-        return res.text().then(text => {
-          console.error('Error response body:', text); 
-          try {
-            // Try to parse as JSON first
-            const error = JSON.parse(text);
-            throw new Error(error.message || 'Registration failed');
-          } catch (e) {
-            // If it's not JSON, it's likely HTML
-            if (text.includes('<!DOCTYPE')) {
-              throw new Error('Server returned HTML instead of JSON. Check your API endpoint configuration.');
-            }
-            throw new Error('Registration failed: ' + text);
-          }
-        });
-      }
-      return res.json();
+      body: JSON.stringify(userData),
     });
+    return response.json();
   },
   
   // Products
-  getProducts: () => fetchWithAuth('/api/product'),
+  getProducts: async () => {
+    const response = await fetch(API_ENDPOINTS.products.list, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.json();
+  },
   
-  getProduct: (id) => fetchWithAuth(`/api/product/${id}`),
+  getProduct: async (id) => {
+    const response = await fetch(API_ENDPOINTS.products.detail(id), {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.json();
+  },
   
-  createProduct: (productData) => fetchWithAuth('/api/product', {
-    method: 'POST',
-    body: JSON.stringify(productData)
-  }),
+  createProduct: async (productData) => {
+    const response = await fetch(API_ENDPOINTS.products.list, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify(productData),
+    });
+    return response.json();
+  },
   
-  updateProduct: (id, productData) => fetchWithAuth(`/api/product/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(productData)
-  }),
+  updateProduct: async (id, productData) => {
+    const response = await fetch(API_ENDPOINTS.products.detail(id), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify(productData),
+    });
+    return response.json();
+  },
   
-  deleteProduct: (id) => fetchWithAuth(`/api/product/${id}`, {
-    method: 'DELETE'
-  }),
+  deleteProduct: async (id) => {
+    const response = await fetch(API_ENDPOINTS.products.detail(id), {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.json();
+  },
   
   // Updates
-  getUpdates: () => fetchWithAuth('/api/update'),
+  getUpdates: async () => {
+    const response = await fetch(API_ENDPOINTS.updates.list, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.json();
+  },
   
-  getUpdate: (id) => fetchWithAuth(`/api/update/${id}`),
+  getUpdate: async (id) => {
+    const response = await fetch(API_ENDPOINTS.updates.detail(id), {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.json();
+  },
   
-  createUpdate: (updateData) => fetchWithAuth('/api/update', {
-    method: 'POST',
-    body: JSON.stringify(updateData)
-  }),
+  createUpdate: async (updateData) => {
+    const response = await fetch(API_ENDPOINTS.updates.list, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify(updateData),
+    });
+    return response.json();
+  },
   
-  updateUpdate: (id, updateData) => fetchWithAuth(`/api/update/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(updateData)
-  }),
+  updateUpdate: async (id, updateData) => {
+    const response = await fetch(API_ENDPOINTS.updates.detail(id), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify(updateData),
+    });
+    return response.json();
+  },
   
-  deleteUpdate: (id) => fetchWithAuth(`/api/update/${id}`, {
-    method: 'DELETE'
-  }),
+  deleteUpdate: async (id) => {
+    const response = await fetch(API_ENDPOINTS.updates.detail(id), {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.json();
+  },
   
   // Update Points
   getUpdatePoints: () => fetchWithAuth('/api/updatepoint'),
@@ -157,3 +189,5 @@ export const api = {
     method: 'DELETE'
   })
 };
+
+export default api;

@@ -37,7 +37,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API routes
+// Public routes (no authentication required)
 app.post(API_CONFIG.ROUTES.AUTH.SIGNIN, async (req: Request, res: Response, next: NextFunction) => {
   console.log('POST /signin route hit');
   try {
@@ -66,10 +66,10 @@ app.post(API_CONFIG.ROUTES.AUTH.REGISTER, async (req: Request, res: Response, ne
   }
 });
 
-// Mount the router with /api prefix
-app.use(API_CONFIG.BASE_URL, router);
+// Mount the router with /api prefix and protect all routes
+app.use(API_CONFIG.BASE_URL, protect, router);
 
-// Find the frontend dist directory - more comprehensive search
+// Find the frontend dist directory
 const possibleFrontendPaths = [
   path.join(__dirname, 'frontend'),
   path.join(__dirname, '../dist/frontend'),
@@ -89,15 +89,6 @@ for (const dir of possibleFrontendPaths) {
       frontendPath = dir;
       console.log('Found frontend files with index.html at:', frontendPath);
       break;
-    }
-    try {
-      const files = fs.readdirSync(dir);
-      console.log(`Directory ${dir} exists with files:`, files);
-      if (files.includes('main.js') || files.includes('App.js')) {
-        console.log('This might be a frontend directory but missing index.html');
-      }
-    } catch (error) {
-      console.error(`Error reading directory ${dir}:`, error);
     }
   }
 }
