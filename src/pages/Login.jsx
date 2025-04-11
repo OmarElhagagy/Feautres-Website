@@ -1,13 +1,13 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 import LoginForm from '../components/auth/LoginForm';
 
 function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (formData) => {
