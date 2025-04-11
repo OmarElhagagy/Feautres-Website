@@ -1,5 +1,5 @@
 import * as user from '../handlers/user';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 
 // Mock dependencies
 jest.mock('../db', () => ({
@@ -21,9 +21,8 @@ describe('user handler', () => {
         expect(data.token).toBeTruthy();
       }),
     } as unknown as Response;
-    const next = jest.fn() as NextFunction;
 
-    await user.createNewUser(req, res, next);
+    await user.createNewUser(req, res);
     expect(res.json).toHaveBeenCalledWith({ token: 'mock-token' });
   });
 
