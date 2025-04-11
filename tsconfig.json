@@ -1,21 +1,41 @@
 {
   "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "allowJs": true,
     "sourceMap": true,
-    "module": "ESNext",                // Changed from CommonJS to support ES modules
-    "outDir": "./dist",                // Kept as is, backend output goes here
-    "lib": ["ESNext", "DOM"],          // Added DOM for React
-    "esModuleInterop": true,           // Kept for module compatibility
-    "moduleResolution": "Node",        // Kept as is
-    "allowSyntheticDefaultImports": true, // Kept for import flexibility
-    "target": "ES2020",                // Updated from ES6 for modern features
-    "jsx": "react-jsx",                // Added for React JSX support
-    "allowJs": true,                   // Added to support .js files (e.g., update.js)
-    "strict": true,                    // Added for better type safety
-    "forceConsistentCasingInFileNames": true, // Added for consistency
-    "skipLibCheck": true,              // Added to speed up compilation
-    "rootDir": "./src",                 // Added to specify source directory
-    "typeRoots": ["./src/types", "./node_modules/@types"]
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "incremental": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }

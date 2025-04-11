@@ -6,15 +6,16 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "vite",
-    "dev:backend": "tsx src/server.ts",
+    "dev:backend": "tsx --watch src/server.ts",
     "build": "npm run build:frontend && npm run build:backend",
     "build:frontend": "vite build",
-    "build:backend": "tsc -p tsconfig.json",
+    "build:backend": "tsc && esbuild src/server.ts --bundle --platform=node --target=es2020 --format=esm --outfile=dist/server.js --external:express --external:jsonwebtoken --external:bcrypt --external:@prisma/client --external:morgan --external:basic-auth --external:safe-buffer --external:dotenv --external:cors",
     "start": "node dist/server.js",
     "test": "jest",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
-    "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "typecheck": "tsc --noEmit"
   },
   "author": "",
   "license": "ISC",
@@ -38,6 +39,8 @@
   "devDependencies": {
     "@babel/core": "^7.26.9",
     "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.9",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/jest": "^29.5.14",
@@ -52,6 +55,7 @@
     "autoprefixer": "^10.4.19",
     "babel-jest": "^29.7.0",
     "concurrently": "^8.2.2",
+    "esbuild": "^0.24.0",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",

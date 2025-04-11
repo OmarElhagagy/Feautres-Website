@@ -1,153 +1,157 @@
-import prisma from '../db.js'
-import { asyncHandler } from '../middleware/errorHandler'
-import { createInputError, createNotFoundError } from '../utils/errors.js'
+import prisma from '../db';
+import { asyncHandler } from '../middleware/errorHandler';
+import { createInputError, createNotFoundError } from '../utils/errors';
 
 // GET UPDATES
 export const getUpdates = asyncHandler(async (req, res) => {
-	const updates = await prisma.update.findMany({
-		where: {
-			userId: req.user.id
-		},
-		include: {
-			updatePoints: true,
-			product: {
-				select: {
-					name: true
-				}
-			}
-		}
-	})
+  const updates = await prisma.update.findMany({
+    where: {
+      userId: req.user.id,
+    },
+    include: {
+      updatePoints: true,
+      product: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
 
-	if (updates.length === 0) {
-		throw createNotFoundError('No updates found')
-	}
+  if (updates.length === 0) {
+    throw createNotFoundError('No updates found');
+  }
 
-	res.json({ data: updates })
-})
+  res.json({ data: updates });
+});
+
 // GET ONE UPDATE
 export const getOneUpdate = asyncHandler(async (req, res) => {
-	const update = await prisma.update.findFirst({
-		where: {
-			id: req.params.id,
-			userId: req.user.id
-		},
-		include: {
-			updatePoints: true,
-			product: {
-				select: {
-					name: true
-				}
-			}
-		}
-	})
+  const update = await prisma.update.findFirst({
+    where: {
+      id: req.params.id,
+      userId: req.user.id,
+    },
+    include: {
+      updatePoints: true,
+      product: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
 
-	if (!update) {
-		throw createNotFoundError('Update not found')
-	}
+  if (!update) {
+    throw createNotFoundError('Update not found');
+  }
 
-	res.json({ data: update })
-})
-// CREATE UPDATES
-export const createUpdates = asyncHandler(async (req, res) => {
-	const { title, body, productId, version, asset } = req.body
+  res.json({ data: update });
+});
 
-	if (!title || !body || !productId) {
-		throw createInputError('Title, body, and productId are required for an update')
-	}
+// CREATE UPDATE
+export const createUpdate = asyncHandler(async (req, res) => {
+  const { title, body, productId, version, asset } = req.body;
 
-	const existingProduct = await prisma.product.findUnique({
-		where: {
-			id_belongsToId: {
-				id: productId,
-				belongsToId: req.user.id
-			}
-		}
-	})
+  if (!title || !body || !productId) {
+    throw createInputError('Title, body, and productId are required for an update');
+  }
 
-	if (!existingProduct) {
-		throw createNotFoundError('Product not found or doesnt belong to you')
-	}
+  const existingProduct = await prisma.product.findUnique({
+    where: {
+      id_belongsToId: {
+        id: productId,
+        belongsToId: req.user.id,
+      },
+    },
+  });
 
-	const updates = await prisma.update.create({
-		data: {
-			title,
-			body,
-			productId,
-			version,
-			asset,
-			userId: req.user.id,
-			updatedAt: new Date()
-		},
-		include: {
-			product: {
-				select: {
-					name: true
-				}
-			}
-		}
-	})
-	res.json({ data: updates })
-})
-// UPDATE UPDATES
-export const updateUpdates = asyncHandler(async (req, res) => {
-	const { title, body, productId, version, asset } = req.body
+  if (!existingProduct) {
+    throw createNotFoundError('Product not found or doesn’t belong to you');
+  }
 
-	if (!title && !body && !productId && !version && !asset) {
-		throw createInputError('At leat one field needed for update')
-	}
+  const update = await prisma.update.create({
+    data: {
+      title,
+      body,
+      productId,
+      version,
+      asset,
+      userId: req.user.id,
+      updatedAt: new Date(),
+    },
+    include: {
+      product: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  });
+  res.json({ data: update });
+});
 
-	const existingUpdate = await prisma.update.findFirst({
-		where: {
-			id: req.params.id,
-			userId: req.user.id
-		}
-	})
+// UPDATE UPDATE
+export const updateUpdate = asyncHandler(async (req, res) => {
+  const { title, body, productId, version, asset } = req.body;
 
-	if (!existingUpdate) {
-		throw createNotFoundError('Update not found')
-	}
+  if (!title && !body && !productId && !version && !asset) {
+    throw createInputError('At least one field needed for update');
+  }
 
-	const updateData = {}
-	if (title) updateData.title = title
-	if (body) updateData.body = body
-	if (productId) updateData.productId = productId
-	if (version) updateData.version = version
-	if (asset) updateData.asset = asset
+  const existingUpdate = await prisma.update.findFirst({
+    where: {
+      id: req.params.id,
+      userId: req.user.id,
+    },
+  });
 
-	updateData.updatedAt = new Date()
+  if (!existingUpdate) {
+    throw createNotFoundError('Update not found');
+  }
 
-	const update = await prisma.update.update({
-		where: {
-			id: req.params.id,
-		},
-		data: updateData,
-		include: {
-			updatePoints: true
-		}
-	})
-	res.json({ data: update })
-})
-// DELETE UPDATES
-export const deleteUpdates = asyncHandler(async (req, res) => {
-	const existingUpdate = await prisma.update.findFirst({
-		where: {
-			id: req.params.id,
-			userId: req.user.id
-		},
-		include: {
-			updatePoints: true
-		}
-	})
+  const updateData = {};
+  if (title) updateData.title = title;
+  if (body) updateData.body = body;
+  if (productId) updateData.productId = productId;
+  if (version) updateData.version = version;
+  if (asset) updateData.asset = asset;
 
-	if (!existingUpdate) {
-		throw createNotFoundError('Update not found')
-	}
+  updateData.updatedAt = new Date();
 
-	const deleted = await prisma.update.delete({
-		where: {
-			id: req.params.id,
-			userId: req.user.id
-		}
-	})
-	res.status(204).end()
-})
+  const update = await prisma.update.update({
+    where: {
+      id: req.params.id,
+    },
+    data: updateData,
+    include: {
+      updatePoints: true,
+    },
+  });
+  res.json({ data: update });
+});
+
+// DELETE UPDATE
+export const deleteUpdate = asyncHandler(async (req, res) => {
+  const existingUpdate = await prisma.update.findFirst({
+    where: {
+      id: req.params.id,
+      userId: req.user.id,
+    },
+    include: {
+      updatePoints: true,
+    },
+  });
+
+  if (!existingUpdate) {
+    throw createNotFoundError('Update not found');
+  }
+
+  await prisma.update.delete({
+    where: {
+      id: req.params.id,
+      userId: req.user.id,
+    },
+  });
+  res.status(204).end();
+});

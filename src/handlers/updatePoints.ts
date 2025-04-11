@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import prisma from '../db.js';
-import { createInputError, createNotFoundError } from '../utils/errors.js';
+import prisma from '../db';
+import { createInputError, createNotFoundError } from '../utils/errors';
 
 export const getUpdatedPoints = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user?.id) {
@@ -20,7 +20,7 @@ export const getUpdatedPoints = asyncHandler(async (req: Request, res: Response)
   });
 
   if (updatePoints.length === 0) {
-    throw createNotFoundError('No updated points');
+    throw createNotFoundError('No update points found');
   }
 
   res.json({ data: updatePoints });
@@ -31,7 +31,7 @@ export const getOneUpdatedPoints = asyncHandler(async (req: Request, res: Respon
     throw new Error('User not authenticated');
   }
 
-  const updatePoints = await prisma.updatePoint.findFirst({
+  const updatePoint = await prisma.updatePoint.findFirst({
     where: {
       id: req.params.id,
       update: {
@@ -43,11 +43,11 @@ export const getOneUpdatedPoints = asyncHandler(async (req: Request, res: Respon
     },
   });
 
-  if (!updatePoints) {
-    throw createNotFoundError('No updated point');
+  if (!updatePoint) {
+    throw createNotFoundError('Update point not found');
   }
 
-  res.json({ data: updatePoints });
+  res.json({ data: updatePoint });
 });
 
 export const createUpdatedPoints = asyncHandler(async (req: Request, res: Response) => {
@@ -56,7 +56,7 @@ export const createUpdatedPoints = asyncHandler(async (req: Request, res: Respon
   }
 
   if (!req.body.name) {
-    throw createInputError('Name is required for updating point');
+    throw createInputError('Name is required for update point');
   }
 
   const existingUpdate = await prisma.update.findFirst({
@@ -70,7 +70,7 @@ export const createUpdatedPoints = asyncHandler(async (req: Request, res: Respon
     throw createNotFoundError('Update not found');
   }
 
-  const updatePoints = await prisma.updatePoint.create({
+  const updatePoint = await prisma.updatePoint.create({
     data: {
       name: req.body.name,
       description: req.body.description,
@@ -78,7 +78,7 @@ export const createUpdatedPoints = asyncHandler(async (req: Request, res: Respon
       updatedAt: new Date(),
     },
   });
-  res.json({ data: updatePoints });
+  res.status(201).json({ data: updatePoint });
 });
 
 export const updateUpdatedPoints = asyncHandler(async (req: Request, res: Response) => {
@@ -87,7 +87,7 @@ export const updateUpdatedPoints = asyncHandler(async (req: Request, res: Respon
   }
 
   if (!req.body.name) {
-    throw createInputError('name is required for updating points');
+    throw createInputError('Name is required for update point');
   }
 
   const existingUpdatedPoint = await prisma.updatePoint.findFirst({
@@ -100,10 +100,10 @@ export const updateUpdatedPoints = asyncHandler(async (req: Request, res: Respon
   });
 
   if (!existingUpdatedPoint) {
-    throw createNotFoundError('Updated point not found');
+    throw createNotFoundError('Update point not found');
   }
 
-  const updatePoints = await prisma.updatePoint.update({
+  const updatePoint = await prisma.updatePoint.update({
     where: {
       id: req.params.id,
     },
@@ -113,7 +113,7 @@ export const updateUpdatedPoints = asyncHandler(async (req: Request, res: Respon
       updatedAt: new Date(),
     },
   });
-  res.json({ data: updatePoints });
+  res.json({ data: updatePoint });
 });
 
 export const deleteUpdatedPoints = asyncHandler(async (req: Request, res: Response) => {
@@ -121,7 +121,7 @@ export const deleteUpdatedPoints = asyncHandler(async (req: Request, res: Respon
     throw new Error('User not authenticated');
   }
 
-  const existingUpdate = await prisma.updatePoint.findFirst({
+  const existingUpdatePoint = await prisma.updatePoint.findFirst({
     where: {
       id: req.params.id,
       update: {
@@ -130,8 +130,8 @@ export const deleteUpdatedPoints = asyncHandler(async (req: Request, res: Respon
     },
   });
 
-  if (!existingUpdate) {
-    throw createNotFoundError('Updated point not found');
+  if (!existingUpdatePoint) {
+    throw createNotFoundError('Update point not found');
   }
 
   await prisma.updatePoint.delete({

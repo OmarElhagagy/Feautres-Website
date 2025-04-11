@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom'; // Remove BrowserRouter
 import AuthContext from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -44,26 +44,24 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout }}>
-      <Router>
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <div className="flex-grow container mx-auto px-4 py-8">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
-              <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
-              <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
-              <Route path="/products" element={user ? <Products /> : <Navigate to="/login" />} />
-              <Route path="/products/:id" element={user ? <ProductDetail /> : <Navigate to="/login" />} />
-              <Route path="/updates" element={user ? <Updates /> : <Navigate to="/login" />} />
-              <Route path="/updates/:id" element={user ? <UpdateDetail /> : <Navigate to="/login" />} />
-              <Route path="/updates/new" element={user ? <NewUpdate /> : <Navigate to="/login" />} />
-              <Route path="/updates/:updateId/points/new" element={user ? <NewUpdatePoint /> : <Navigate to="/login" />} />
-            </Routes>
-          </div>
-          <Footer />
+      <div className="min-h-screen flex flex-col"> {/* Remove <Router> */}
+        <Header />
+        <div className="flex-grow container mx-auto px-4 py-8">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
+            <Route path="/register" element={!user ? <Register /> : <Navigate to="/dashboard" />} />
+            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/login" />} />
+            <Route path="/products" element={user ? <Products /> : <Navigate to="/login" />} />
+            <Route path="/products/:id" element={user ? <ProductDetail /> : <Navigate to="/login" />} />
+            <Route path="/updates" element={user ? <Updates /> : <Navigate to="/login" />} />
+            <Route path="/updates/:id" element={user ? <UpdateDetail /> : <Navigate to="/login" />} />
+            <Route path="/updates/new" element={user ? <NewUpdate /> : <Navigate to="/login" />} />
+            <Route path="/updates/:updateId/points/new" element={user ? <NewUpdatePoint /> : <Navigate to="/login" />} />
+          </Routes>
         </div>
-      </Router>
+        <Footer />
+      </div>
     </AuthContext.Provider>
   );
 }
