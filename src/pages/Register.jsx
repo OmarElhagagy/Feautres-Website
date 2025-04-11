@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { api } from '../utils/api';
 import RegisterForm from '../components/auth/RegisterForm';
 
 function Register() {
@@ -14,13 +13,8 @@ function Register() {
     setLoading(true);
     setError('');
     try {
-      const response = await api.register(formData);
-      if (response.token) {
-        register(response.token);
-        navigate('/dashboard');
-      } else {
-        setError('Registration failed');
-      }
+      await register(formData);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {

@@ -75,8 +75,8 @@ app.use('/api', protect, router);
 
 // Find the frontend dist directory
 const possibleFrontendPaths = [
+  path.join(__dirname, '../dist/frontend'), // Primary path where Vite builds to
   path.join(__dirname, 'frontend'),
-  path.join(__dirname, '../dist/frontend'),
   path.join(__dirname, '../frontend'),
   path.join(__dirname, '../dist'),
   path.join(__dirname, '..'),
@@ -99,14 +99,18 @@ for (const dir of possibleFrontendPaths) {
 
 if (frontendPath) {
   // Serve static files first
-  app.use(express.static(frontendPath));
+  app.use(express.static(frontendPath, {
+    maxAge: '1d', // Cache static files for 1 day
+    etag: true, // Enable ETag for better caching
+  }));
   
   // Then set up a catch-all route for the SPA
   app.get('*', (req: Request, res: Response, next: NextFunction) => {
-    // Skip the catch-all if it's an API route
+    // Skip the catch-all if it's an API route or static file
     if (req.path.startsWith('/api') || 
         req.path === API_ENDPOINTS.auth.login || 
-        req.path === API_ENDPOINTS.auth.register) {
+        req.path === API_ENDPOINTS.auth.register ||
+        req.path.startsWith('/assets/')) {
       return next();
     }
     

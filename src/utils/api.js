@@ -42,18 +42,54 @@ const fetchWithAuth = async (endpoint, options = {}) => {
   }
 };
 
+const fetchWithoutAuth = async (endpoint, options = {}) => {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+  
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers
+  });
+  
+  if (!response.ok) {
+    try {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.message || 'Something went wrong');
+      } else {
+        const text = await response.text();
+        if (text.includes('<!DOCTYPE')) {
+          throw new Error('Server returned HTML instead of JSON. Check your API endpoint configuration.');
+        }
+        throw new Error('Request failed: ' + text);
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+  
+  try {
+    return await response.json();
+  } catch (e) {
+    throw new Error('Invalid JSON response from server');
+  }
+};
+
 // API Functions
 export const api = {
   // Auth
   login: async (credentials) => {
-    return fetchWithAuth(API_ENDPOINTS.auth.login, {
+    return fetchWithoutAuth(API_ENDPOINTS.auth.login, {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
   },
   
   register: async (userData) => {
-    return fetchWithAuth(API_ENDPOINTS.auth.register, {
+    return fetchWithoutAuth(API_ENDPOINTS.auth.register, {
       method: 'POST',
       body: JSON.stringify(userData),
     });

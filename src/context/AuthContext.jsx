@@ -9,17 +9,23 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const setUserFromToken = (token) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setUser({ id: payload.id, username: payload.username });
+    } catch (error) {
+      console.error('Invalid token:', error);
+      setError('Invalid authentication token');
+      logout();
+    }
+  };
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         if (token) {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          setUser({ id: payload.id, username: payload.username });
+          setUserFromToken(token);
         }
-      } catch (error) {
-        console.error('Invalid token:', error);
-        setError('Invalid authentication token');
-        logout();
       } finally {
         setIsLoading(false);
       }
@@ -35,6 +41,7 @@ export const AuthProvider = ({ children }) => {
       const newToken = response.token;
       localStorage.setItem('token', newToken);
       setToken(newToken);
+      setUserFromToken(newToken);
       return true;
     } catch (error) {
       console.error('Login failed:', error);
@@ -50,6 +57,7 @@ export const AuthProvider = ({ children }) => {
       const newToken = response.token;
       localStorage.setItem('token', newToken);
       setToken(newToken);
+      setUserFromToken(newToken);
       return true;
     } catch (error) {
       console.error('Registration failed:', error);

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { api } from '../utils/api';
 import LoginForm from '../components/auth/LoginForm';
 
 function Login() {
@@ -14,13 +13,8 @@ function Login() {
     setLoading(true);
     setError('');
     try {
-      const response = await api.login(formData);
-      if (response.token) {
-        login(response.token);
-        navigate('/dashboard');
-      } else {
-        setError('Login failed');
-      }
+      await login(formData);
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Login failed');
     } finally {
