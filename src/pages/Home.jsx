@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 function Home() {
-  const { user } = useContext(AuthContext);
+  const { user } = useAuth();
   
   return (
     <div className="max-w-4xl mx-auto">
