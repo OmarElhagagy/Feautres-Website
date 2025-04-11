@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   
   const handleLogout = () => {
@@ -19,13 +19,13 @@ function Header() {
         <nav className="flex items-center space-x-6">
           <Link to="/" className="hover:text-blue-300">Home</Link>
           
-          {user ? (
+          {isAuthenticated ? (
             <>
               <Link to="/dashboard" className="hover:text-blue-300">Dashboard</Link>
               <Link to="/products" className="hover:text-blue-300">Products</Link>
               <Link to="/updates" className="hover:text-blue-300">Updates</Link>
               <div className="flex items-center ml-6">
-                <span className="mr-4">Welcome, {user.username}</span>
+                <span className="mr-4">Welcome, {user?.username || 'User'}</span>
                 <button 
                   onClick={handleLogout}
                   className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
