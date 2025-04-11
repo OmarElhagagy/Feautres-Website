@@ -7,7 +7,7 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
@@ -15,8 +15,9 @@ class ErrorBoundary extends React.Component {
       error: error,
       errorInfo: errorInfo
     });
-    // You can also log the error to an error reporting service
-    console.error('Error caught by boundary:', error, errorInfo);
+    // Log the error to the console
+    console.error('Error caught by boundary:', error);
+    console.error('Error stack:', errorInfo.componentStack);
   }
 
   render() {
@@ -28,15 +29,13 @@ class ErrorBoundary extends React.Component {
             <p className="text-gray-600 mb-4">
               We're sorry, but something went wrong. Please try refreshing the page or contact support if the problem persists.
             </p>
-            {process.env.NODE_ENV === 'development' && (
-              <details className="text-sm text-gray-500">
-                <summary>Error details</summary>
-                <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
-                  {this.state.error && this.state.error.toString()}
-                  {this.state.errorInfo && this.state.errorInfo.componentStack}
-                </pre>
-              </details>
-            )}
+            <details className="text-sm text-gray-500">
+              <summary>Error details</summary>
+              <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
+                {this.state.error && this.state.error.toString()}
+                {this.state.errorInfo && this.state.errorInfo.componentStack}
+              </pre>
+            </details>
             <button
               onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"

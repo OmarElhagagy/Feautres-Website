@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -16,7 +17,8 @@ export const AuthProvider = ({ children }) => {
           setUser({ id: payload.id, username: payload.username });
         }
       } catch (error) {
-        console.error('Invalid token', error);
+        console.error('Invalid token:', error);
+        setError('Invalid authentication token');
         logout();
       } finally {
         setIsLoading(false);
@@ -28,6 +30,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
+      setError(null);
       const response = await api.login(credentials);
       const newToken = response.token;
       localStorage.setItem('token', newToken);
@@ -35,12 +38,14 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error('Login failed:', error);
+      setError(error.message || 'Login failed');
       throw error;
     }
   };
 
   const register = async (userData) => {
     try {
+      setError(null);
       const response = await api.register(userData);
       const newToken = response.token;
       localStorage.setItem('token', newToken);
@@ -48,6 +53,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error('Registration failed:', error);
+      setError(error.message || 'Registration failed');
       throw error;
     }
   };
@@ -56,6 +62,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    setError(null);
   };
 
   const isAuthenticated = !!token;
@@ -67,6 +74,7 @@ export const AuthProvider = ({ children }) => {
         token,
         isAuthenticated,
         isLoading,
+        error,
         login,
         register,
         logout,
