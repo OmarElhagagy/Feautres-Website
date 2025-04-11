@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-export const getUpdates = async (req: Request, res: Response, next: NextFunction) => {
+export const getUpdates = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     // TODO: Implement actual update fetching
     res.json([]);

@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { createInputError } from '../utils/errors';
 
-export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
+export const getProducts = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     // TODO: Implement actual product fetching
     res.json([]);

@@ -31,13 +31,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Enhanced logging middleware
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   next();
 });
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
@@ -122,7 +122,7 @@ if (frontendPath) {
   console.log('If you built the frontend separately, make sure to copy it to the correct location.');
   console.log('For Vite apps, typically run: npm run build');
   
-  app.get('/', (req: Request, res: Response) => {
+  app.get('/', (_req: Request, res: Response) => {
     res.json({ 
       message: 'API server running, but frontend files not found',
       checkedPaths: possibleFrontendPaths,

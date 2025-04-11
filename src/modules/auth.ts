@@ -49,7 +49,7 @@ export const protect = (req: Request, res: Response, next: NextFunction): void =
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, password } = req.body;
+    const { username } = req.body;
     // TODO: Implement actual login logic
     const token = jwt.sign({ id: '1', username }, config.jwtSecret);
     res.json({ token });
@@ -60,7 +60,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { username, password } = req.body;
+    const { username } = req.body;
     // TODO: Implement actual registration logic
     const token = jwt.sign({ id: '1', username }, config.jwtSecret);
     res.json({ token });

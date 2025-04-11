@@ -1,14 +1,14 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { Router } from 'express';
 import { handleInputErrors } from '../middleware/validation';
 import { createInputError, createNotFoundError } from '../utils/errors';
 import prisma from '../db';
-import { authenticateToken } from '../middleware/auth';
+import { protect } from '../middleware/auth';
 
 const router = Router();
 
 // Get all update points for an update
-router.get('/', authenticateToken, async (req: Request, res: Response) => {
+router.get('/', protect, async (req: Request, res: Response) => {
   const { updateId } = req.params;
   const updatePoints = await prisma.updatePoint.findMany({
     where: { updateId },
@@ -18,7 +18,7 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Get a single update point
-router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
+router.get('/:id', protect, async (req: Request, res: Response) => {
   const { id } = req.params;
   const updatePoint = await prisma.updatePoint.findUnique({
     where: { id },
@@ -33,7 +33,7 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // Create a new update point
-router.post('/', authenticateToken, handleInputErrors, async (req: Request, res: Response) => {
+router.post('/', protect, handleInputErrors, async (req: Request, res: Response) => {
   const { updateId } = req.params;
   const { name, description } = req.body;
 
@@ -55,7 +55,7 @@ router.post('/', authenticateToken, handleInputErrors, async (req: Request, res:
 });
 
 // Update an update point
-router.put('/:id', authenticateToken, handleInputErrors, async (req: Request, res: Response) => {
+router.put('/:id', protect, handleInputErrors, async (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, description } = req.body;
 
@@ -73,7 +73,7 @@ router.put('/:id', authenticateToken, handleInputErrors, async (req: Request, re
 });
 
 // Delete an update point
-router.delete('/:id', authenticateToken, async (req: Request, res: Response) => {
+router.delete('/:id', protect, async (req: Request, res: Response) => {
   const { id } = req.params;
 
   await prisma.updatePoint.delete({
