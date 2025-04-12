@@ -1,6 +1,27 @@
 import { API_ENDPOINTS, API_BASE_URL } from '../config/api.js';
 
 /**
+ * Build the full URL for an API endpoint
+ * @param {string} endpoint - The API endpoint path
+ * @returns {string} - The full URL
+ */
+const buildUrl = (endpoint) => {
+  // If the endpoint already starts with http/https, use it as is
+  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+    return endpoint;
+  }
+  
+  // If we're in the browser, use relative URLs to avoid CORS/CSP issues
+  if (typeof window !== 'undefined') {
+    // If endpoint already starts with /, use as is
+    return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  }
+  
+  // In Node.js context, use full URL
+  return `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+};
+
+/**
  * Handle API response and extract data or error
  * @param {Response} response - Fetch API response
  * @returns {Promise<any>} - Parsed response data
@@ -72,13 +93,15 @@ const fetchWithAuth = async (endpoint, options = {}) => {
   }
   
   // Build full URL
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = buildUrl(endpoint);
   
   try {
     console.log(`Fetching ${url}`);
     const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      // Use same-origin credentials to ensure cookies are sent
+      credentials: 'same-origin'
     });
     
     return handleResponse(response);
@@ -105,13 +128,15 @@ const fetchWithoutAuth = async (endpoint, options = {}) => {
   };
   
   // Build full URL
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = buildUrl(endpoint);
   
   try {
     console.log(`Fetching (unauthenticated) ${url}`);
     const response = await fetch(url, {
       ...options,
-      headers
+      headers,
+      // Use same-origin credentials to ensure cookies are sent
+      credentials: 'same-origin'
     });
     
     return handleResponse(response);

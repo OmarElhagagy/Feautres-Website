@@ -24,7 +24,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:"],
+        connectSrc: ["'self'", "http://localhost:5000", "ws://localhost:5000"],
+        fontSrc: ["'self'", "data:"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
+    },
+  })
+);
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -43,7 +59,7 @@ app.get('/health', (_req, res) => {
 
 // Public routes (no authentication required)
 app.post(API_ENDPOINTS.auth.login, async (req: Request, res: Response, next: NextFunction) => {
-  console.log('POST /signin route hit');
+  console.log('POST login route hit with body:', JSON.stringify(req.body));
   try {
     await signin(req, res, next);
     if (!res.headersSent) {
@@ -57,7 +73,7 @@ app.post(API_ENDPOINTS.auth.login, async (req: Request, res: Response, next: Nex
 });
 
 app.post(API_ENDPOINTS.auth.register, async (req: Request, res: Response, next: NextFunction) => {
-  console.log('POST /user route hit with body:', JSON.stringify(req.body));
+  console.log('POST register route hit with body:', JSON.stringify(req.body));
   try {
     await createNewUser(req, res);
     if (!res.headersSent) {
@@ -68,6 +84,15 @@ app.post(API_ENDPOINTS.auth.register, async (req: Request, res: Response, next: 
     console.error('Error in /user route:', error);
     next(error);
   }
+});
+
+// Add a route to verify auth status
+app.get('/api/auth/status', protect, (req: Request, res: Response) => {
+  console.log('Auth status check for user:', req.user);
+  res.json({ 
+    authenticated: true, 
+    user: req.user 
+  });
 });
 
 // Mount the router with /api prefix and protect all routes
