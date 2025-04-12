@@ -1,5 +1,31 @@
 import { API_ENDPOINTS, API_BASE_URL } from '../config/api.js';
 
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    try {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.message || 'Something went wrong');
+      } else {
+        const text = await response.text();
+        if (text.includes('<!DOCTYPE')) {
+          throw new Error('Server returned HTML instead of JSON. Check your API endpoint configuration.');
+        }
+        throw new Error('Request failed: ' + text);
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+  
+  try {
+    return await response.json();
+  } catch (e) {
+    throw new Error('Invalid JSON response from server');
+  }
+};
+
 const fetchWithAuth = async (endpoint, options = {}) => {
   const token = localStorage.getItem('token');
   
@@ -12,33 +38,17 @@ const fetchWithAuth = async (endpoint, options = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
   
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers
-  });
-  
-  if (!response.ok) {
-    try {
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const error = await response.json();
-        throw new Error(error.message || 'Something went wrong');
-      } else {
-        const text = await response.text();
-        if (text.includes('<!DOCTYPE')) {
-          throw new Error('Server returned HTML instead of JSON. Check your API endpoint configuration.');
-        }
-        throw new Error('Request failed: ' + text);
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-  
   try {
-    return await response.json();
-  } catch (e) {
-    throw new Error('Invalid JSON response from server');
+    console.log(`Fetching ${API_BASE_URL}${endpoint}`);
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers
+    });
+    
+    return handleResponse(response);
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    throw error;
   }
 };
 
@@ -48,33 +58,17 @@ const fetchWithoutAuth = async (endpoint, options = {}) => {
     ...options.headers,
   };
   
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers
-  });
-  
-  if (!response.ok) {
-    try {
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const error = await response.json();
-        throw new Error(error.message || 'Something went wrong');
-      } else {
-        const text = await response.text();
-        if (text.includes('<!DOCTYPE')) {
-          throw new Error('Server returned HTML instead of JSON. Check your API endpoint configuration.');
-        }
-        throw new Error('Request failed: ' + text);
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
-  
   try {
-    return await response.json();
-  } catch (e) {
-    throw new Error('Invalid JSON response from server');
+    console.log(`Fetching without auth ${API_BASE_URL}${endpoint}`);
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers
+    });
+    
+    return handleResponse(response);
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    throw error;
   }
 };
 
@@ -82,17 +76,29 @@ const fetchWithoutAuth = async (endpoint, options = {}) => {
 export const api = {
   // Auth
   login: async (credentials) => {
-    return fetchWithoutAuth(API_ENDPOINTS.auth.login, {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    });
+    console.log('Logging in with', credentials.username);
+    try {
+      return await fetchWithoutAuth(API_ENDPOINTS.auth.login, {
+        method: 'POST',
+        body: JSON.stringify(credentials),
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   },
   
   register: async (userData) => {
-    return fetchWithoutAuth(API_ENDPOINTS.auth.register, {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    });
+    console.log('Registering user', userData.username);
+    try {
+      return await fetchWithoutAuth(API_ENDPOINTS.auth.register, {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    }
   },
   
   // Products

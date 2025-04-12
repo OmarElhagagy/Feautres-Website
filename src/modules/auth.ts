@@ -5,6 +5,9 @@ import { User } from '../types.js';
 import { createAuthError } from '../utils/errors';
 import config from '../config';
 
+// Use a consistent JWT_SECRET
+const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key';
+
 export const comparePasswords = (password: string, hashedPassword: string): Promise<boolean> => {
   return bcrypt.compare(password, hashedPassword);
 };
@@ -16,8 +19,8 @@ export const hashPassword = (password: string): Promise<string> => {
 export const createJWT = (user: User): string => {
   const token = jwt.sign(
     { id: user.id, username: user.username },
-    process.env.JWT_SECRET as string,
-    { expiresIn: '1d' } // Added expiration as suggested
+    JWT_SECRET,
+    { expiresIn: '1d' }
   );
   return token;
 };
@@ -37,7 +40,7 @@ export const protect = (req: Request, res: Response, next: NextFunction): void =
   }
 
   try {
-    const user = jwt.verify(token, process.env.JWT_SECRET as string) as User;
+    const user = jwt.verify(token, JWT_SECRET) as User;
     req.user = user;
     next();
   } catch (error) {
@@ -51,7 +54,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const { username } = req.body;
     // TODO: Implement actual login logic
-    const token = jwt.sign({ id: '1', username }, config.jwtSecret);
+    const token = jwt.sign({ id: '1', username }, JWT_SECRET);
     res.json({ token });
   } catch (error) {
     next(createAuthError('Login failed'));
@@ -62,7 +65,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   try {
     const { username } = req.body;
     // TODO: Implement actual registration logic
-    const token = jwt.sign({ id: '1', username }, config.jwtSecret);
+    const token = jwt.sign({ id: '1', username }, JWT_SECRET);
     res.json({ token });
   } catch (error) {
     next(createAuthError('Registration failed'));
