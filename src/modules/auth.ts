@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { User } from '../types.js';
 import { createAuthError } from '../utils/errors';
-import config from '../config';
 
 // Use a consistent JWT_SECRET
 const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key';
