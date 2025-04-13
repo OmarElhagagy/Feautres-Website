@@ -1,5 +1,5 @@
 console.log('Starting server.ts - Debug Version 3');
-import express from 'express';
+import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -7,14 +7,16 @@ import router from './router';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import config from './config';
-import { protect } from './modules/auth.js';
-import { createNewUser, signin } from './handlers/user.js';
+import { protect, login as authLogin } from './modules/auth.js';
+import { createNewUser, signin } from './handlers/user.ts';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
-import { API_ENDPOINTS } from './config/api.js';
+import { API_CONFIG, API_ENDPOINTS } from './config/api.ts';
+import { json, urlencoded } from 'body-parser';
+import { handleInputErrors } from './middleware/validation';
+import { body } from 'express-validator/check';
 
 dotenv.config();
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -57,8 +59,19 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
+// Validation middleware
+const validateRegisterInput = [
+  body('username').isString().notEmpty().withMessage('Username is required'),
+  body('password').isString().isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+];
+
+const validateLoginInput = [
+  body('username').isString().notEmpty().withMessage('Username is required'),
+  body('password').isString().notEmpty().withMessage('Password is required')
+];
+
 // Public routes (no authentication required)
-app.post(API_ENDPOINTS.auth.login, async (req: Request, res: Response, next: NextFunction) => {
+app.post(API_ENDPOINTS.auth.login, validateLoginInput, handleInputErrors, async (req: Request, res: Response, next: NextFunction) => {
   console.log('POST login route hit with body:', JSON.stringify(req.body));
   try {
     await signin(req, res, next);
@@ -72,7 +85,7 @@ app.post(API_ENDPOINTS.auth.login, async (req: Request, res: Response, next: Nex
   }
 });
 
-app.post(API_ENDPOINTS.auth.register, async (req: Request, res: Response, next: NextFunction) => {
+app.post(API_ENDPOINTS.auth.register, validateRegisterInput, handleInputErrors, async (req: Request, res: Response, next: NextFunction) => {
   console.log('POST register route hit with body:', JSON.stringify(req.body));
   try {
     await createNewUser(req, res);
@@ -86,8 +99,8 @@ app.post(API_ENDPOINTS.auth.register, async (req: Request, res: Response, next: 
   }
 });
 
-// Add a route to verify auth status
-app.get('/api/auth/status', protect, (req: Request, res: Response) => {
+// Add a route to verify auth status - using API_CONFIG for auth status endpoint
+app.get(`${API_CONFIG.BASE_URL}${API_CONFIG.ROUTES.AUTH.SIGNIN}/status`, protect, (req: Request, res: Response) => {
   console.log('Auth status check for user:', req.user);
   res.json({ 
     authenticated: true, 

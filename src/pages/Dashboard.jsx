@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 
 function Dashboard() {
-  const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [updates, setUpdates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +11,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch products and updates
         const productsRes = await api.getProducts();
         setProducts(productsRes.data || []);
         
@@ -65,7 +64,7 @@ function Dashboard() {
                   >
                     <div className="font-medium">{product.name}</div>
                     <div className="text-sm text-gray-500">
-                      {product.updates.length} updates
+                      Version: {product.version}
                     </div>
                   </Link>
                 </li>
@@ -105,15 +104,10 @@ function Dashboard() {
                     <div className="font-medium">{update.title}</div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">
-                        {new Date(update.updatedAt).toLocaleDateString()}
+                        Product ID: {update.productId}
                       </span>
-                      <span className={`
-                        px-2 rounded-full text-xs
-                        ${update.status === 'SHIPPED' ? 'bg-green-100 text-green-800' : 
-                          update.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' : 
-                          'bg-gray-100 text-gray-800'}
-                      `}>
-                        {update.status.replace('_', ' ')}
+                      <span className="bg-blue-100 text-blue-800 px-2 rounded-full text-xs">
+                        {update.version}
                       </span>
                     </div>
                   </Link>
@@ -125,7 +119,7 @@ function Dashboard() {
           )}
           
           <Link 
-            to="/updates"
+            to="/updates/new"
             className="block text-blue-500 mt-4 hover:underline"
           >
             + Add new update

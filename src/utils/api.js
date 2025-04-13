@@ -1,280 +1,170 @@
-import { API_ENDPOINTS, API_BASE_URL } from '../config/api.js';
+import { API_ENDPOINTS } from '../config/api.js';
 
-/**
- * Build the full URL for an API endpoint
- * @param {string} endpoint - The API endpoint path
- * @returns {string} - The full URL
- */
-const buildUrl = (endpoint) => {
-  // If the endpoint already starts with http/https, use it as is
-  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
-    return endpoint;
-  }
-  
-  // If we're in the browser, use relative URLs to avoid CORS/CSP issues
-  if (typeof window !== 'undefined') {
-    // If endpoint already starts with /, use as is
-    return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  }
-  
-  // In Node.js context, use full URL
-  return `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+// Mock data for development
+const MOCK_DATA = {
+  products: [
+    { id: '1', name: 'Product 1', description: 'Description for product 1', version: '1.0.0' },
+    { id: '2', name: 'Product 2', description: 'Description for product 2', version: '2.0.0' },
+    { id: '3', name: 'Product 3', description: 'Description for product 3', version: '1.5.0' },
+  ],
+  updates: [
+    { 
+      id: '1', 
+      title: 'Update 1 for Product 1', 
+      body: 'Details about update 1', 
+      version: '1.1.0',
+      productId: '1' 
+    },
+    { 
+      id: '2', 
+      title: 'Update 2 for Product 1', 
+      body: 'Details about update 2', 
+      version: '1.2.0',
+      productId: '1' 
+    },
+    { 
+      id: '3', 
+      title: 'Update 1 for Product 2', 
+      body: 'Details about update 1 for product 2', 
+      version: '2.1.0',
+      productId: '2' 
+    },
+  ],
+  updatePoints: [
+    { id: '1', title: 'Point 1', description: 'Description for point 1', updateId: '1' },
+    { id: '2', title: 'Point 2', description: 'Description for point 2', updateId: '1' },
+    { id: '3', title: 'Point 3', description: 'Description for point 3', updateId: '2' },
+  ]
 };
 
 /**
- * Handle API response and extract data or error
- * @param {Response} response - Fetch API response
- * @returns {Promise<any>} - Parsed response data
- * @throws {Error} - Throws error with message from response
- */
-const handleResponse = async (response) => {
-  // If we get an error status code
-  if (!response.ok) {
-    let errorMessage = `Request failed with status ${response.status}`;
-    
-    try {
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        // Try to parse JSON error
-        const error = await response.json();
-        errorMessage = error.message || errorMessage;
-      } else {
-        // Try to get error text
-        const text = await response.text();
-        if (text) {
-          if (text.includes('<!DOCTYPE')) {
-            errorMessage = 'Server returned HTML instead of JSON. Check your API endpoint configuration.';
-          } else {
-            errorMessage = text;
-          }
-        }
-      }
-    } catch (parseError) {
-      console.error('Error parsing error response:', parseError);
-    }
-    
-    const error = new Error(errorMessage);
-    error.status = response.status;
-    error.statusText = response.statusText;
-    throw error;
-  }
-  
-  // Parse success response
-  try {
-    // Handle empty responses (like for DELETE operations)
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      return await response.json();
-    }
-    return { success: true };
-  } catch (error) {
-    console.error('Error parsing JSON response:', error);
-    throw new Error('Invalid JSON response from server');
-  }
-};
-
-/**
- * Make authenticated API request
- * @param {string} endpoint - API endpoint
- * @param {object} options - Fetch options
- * @returns {Promise<any>} - Response data
- */
-const fetchWithAuth = async (endpoint, options = {}) => {
-  // Build request headers
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-  
-  // Add auth token if available
-  const token = localStorage.getItem('token');
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  
-  // Build full URL
-  const url = buildUrl(endpoint);
-  
-  try {
-    console.log(`Fetching ${url}`);
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      // Use same-origin credentials to ensure cookies are sent
-      credentials: 'same-origin'
-    });
-    
-    return handleResponse(response);
-  } catch (error) {
-    console.error(`API error for ${endpoint}:`, error);
-    // Add request info to error
-    error.endpoint = endpoint;
-    error.url = url;
-    throw error;
-  }
-};
-
-/**
- * Make unauthenticated API request
- * @param {string} endpoint - API endpoint
- * @param {object} options - Fetch options
- * @returns {Promise<any>} - Response data
- */
-const fetchWithoutAuth = async (endpoint, options = {}) => {
-  // Build request headers
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-  
-  // Build full URL
-  const url = buildUrl(endpoint);
-  
-  try {
-    console.log(`Fetching (unauthenticated) ${url}`);
-    const response = await fetch(url, {
-      ...options,
-      headers,
-      // Use same-origin credentials to ensure cookies are sent
-      credentials: 'same-origin'
-    });
-    
-    return handleResponse(response);
-  } catch (error) {
-    console.error(`API error for ${endpoint}:`, error);
-    // Add request info to error
-    error.endpoint = endpoint;
-    error.url = url;
-    throw error;
-  }
-};
-
-/**
- * API client with authentication handling
+ * Mock API client that returns predefined data
  */
 export const api = {
-  // Auth
-  login: async (credentials) => {
-    console.log('Login attempt for:', credentials.username);
-    try {
-      return await fetchWithoutAuth(API_ENDPOINTS.auth.login, {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
-  },
-  
-  register: async (userData) => {
-    console.log('Register attempt for:', userData.username);
-    try {
-      return await fetchWithoutAuth(API_ENDPOINTS.auth.register, {
-        method: 'POST',
-        body: JSON.stringify(userData),
-      });
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  },
+  // Auth - not used but kept for compatibility
+  login: async () => ({ token: 'mock-token' }),
+  register: async () => ({ token: 'mock-token' }),
   
   // Products
   getProducts: async () => {
-    console.log('Fetching products');
-    return fetchWithAuth(API_ENDPOINTS.products.base);
+    console.log('Fetching products (mock)');
+    return { data: MOCK_DATA.products };
   },
   
   getProduct: async (id) => {
-    console.log(`Fetching product: ${id}`);
-    return fetchWithAuth(API_ENDPOINTS.products.byId(id));
+    console.log(`Fetching product: ${id} (mock)`);
+    const product = MOCK_DATA.products.find(p => p.id === id);
+    return { data: product || null };
   },
   
   createProduct: async (productData) => {
-    console.log('Creating product:', productData);
-    return fetchWithAuth(API_ENDPOINTS.products.base, {
-      method: 'POST',
-      body: JSON.stringify(productData),
-    });
+    console.log('Creating product (mock):', productData);
+    const newProduct = {
+      id: String(Date.now()),
+      ...productData,
+    };
+    MOCK_DATA.products.push(newProduct);
+    return { data: newProduct };
   },
   
   updateProduct: async (id, productData) => {
-    console.log(`Updating product: ${id}`, productData);
-    return fetchWithAuth(API_ENDPOINTS.products.byId(id), {
-      method: 'PUT',
-      body: JSON.stringify(productData),
-    });
+    console.log(`Updating product: ${id} (mock)`, productData);
+    const index = MOCK_DATA.products.findIndex(p => p.id === id);
+    if (index >= 0) {
+      MOCK_DATA.products[index] = { ...MOCK_DATA.products[index], ...productData };
+      return { data: MOCK_DATA.products[index] };
+    }
+    return { error: 'Product not found' };
   },
   
   deleteProduct: async (id) => {
-    console.log(`Deleting product: ${id}`);
-    return fetchWithAuth(API_ENDPOINTS.products.byId(id), {
-      method: 'DELETE',
-    });
+    console.log(`Deleting product: ${id} (mock)`);
+    const index = MOCK_DATA.products.findIndex(p => p.id === id);
+    if (index >= 0) {
+      MOCK_DATA.products.splice(index, 1);
+      return { success: true };
+    }
+    return { error: 'Product not found' };
   },
   
   // Updates
   getUpdates: async () => {
-    console.log('Fetching updates');
-    return fetchWithAuth(API_ENDPOINTS.updates.base);
+    console.log('Fetching updates (mock)');
+    return { data: MOCK_DATA.updates };
   },
   
   getUpdate: async (id) => {
-    console.log(`Fetching update: ${id}`);
-    return fetchWithAuth(API_ENDPOINTS.updates.byId(id));
+    console.log(`Fetching update: ${id} (mock)`);
+    const update = MOCK_DATA.updates.find(u => u.id === id);
+    return { data: update || null };
   },
   
   createUpdate: async (updateData) => {
-    console.log('Creating update:', updateData);
-    return fetchWithAuth(API_ENDPOINTS.updates.base, {
-      method: 'POST',
-      body: JSON.stringify(updateData),
-    });
+    console.log('Creating update (mock):', updateData);
+    const newUpdate = {
+      id: String(Date.now()),
+      ...updateData,
+    };
+    MOCK_DATA.updates.push(newUpdate);
+    return { data: newUpdate };
   },
   
   updateUpdate: async (id, updateData) => {
-    console.log(`Updating update: ${id}`, updateData);
-    return fetchWithAuth(API_ENDPOINTS.updates.byId(id), {
-      method: 'PUT',
-      body: JSON.stringify(updateData),
-    });
+    console.log(`Updating update: ${id} (mock)`, updateData);
+    const index = MOCK_DATA.updates.findIndex(u => u.id === id);
+    if (index >= 0) {
+      MOCK_DATA.updates[index] = { ...MOCK_DATA.updates[index], ...updateData };
+      return { data: MOCK_DATA.updates[index] };
+    }
+    return { error: 'Update not found' };
   },
   
   deleteUpdate: async (id) => {
-    console.log(`Deleting update: ${id}`);
-    return fetchWithAuth(API_ENDPOINTS.updates.byId(id), {
-      method: 'DELETE',
-    });
+    console.log(`Deleting update: ${id} (mock)`);
+    const index = MOCK_DATA.updates.findIndex(u => u.id === id);
+    if (index >= 0) {
+      MOCK_DATA.updates.splice(index, 1);
+      return { success: true };
+    }
+    return { error: 'Update not found' };
   },
   
   // Update Points
   getUpdatePoints: async (updateId) => {
-    console.log(`Fetching update points for update: ${updateId}`);
-    return fetchWithAuth(API_ENDPOINTS.updates.points.base(updateId));
+    console.log(`Fetching update points for update: ${updateId} (mock)`);
+    const points = MOCK_DATA.updatePoints.filter(p => p.updateId === updateId);
+    return { data: points };
   },
   
   createUpdatePoint: async (updateId, data) => {
-    console.log(`Creating update point for update: ${updateId}`, data);
-    return fetchWithAuth(API_ENDPOINTS.updates.points.base(updateId), {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    console.log(`Creating update point for update: ${updateId} (mock)`, data);
+    const newPoint = {
+      id: String(Date.now()),
+      updateId,
+      ...data,
+    };
+    MOCK_DATA.updatePoints.push(newPoint);
+    return { data: newPoint };
   },
   
   updateUpdatePoint: async (updateId, pointId, data) => {
-    console.log(`Updating update point: ${pointId} for update: ${updateId}`, data);
-    return fetchWithAuth(API_ENDPOINTS.updates.points.byId(updateId, pointId), {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    console.log(`Updating update point: ${pointId} for update: ${updateId} (mock)`, data);
+    const index = MOCK_DATA.updatePoints.findIndex(p => p.id === pointId && p.updateId === updateId);
+    if (index >= 0) {
+      MOCK_DATA.updatePoints[index] = { ...MOCK_DATA.updatePoints[index], ...data };
+      return { data: MOCK_DATA.updatePoints[index] };
+    }
+    return { error: 'Update point not found' };
   },
   
   deleteUpdatePoint: async (updateId, pointId) => {
-    console.log(`Deleting update point: ${pointId} for update: ${updateId}`);
-    return fetchWithAuth(API_ENDPOINTS.updates.points.byId(updateId, pointId), {
-      method: 'DELETE',
-    });
+    console.log(`Deleting update point: ${pointId} for update: ${updateId} (mock)`);
+    const index = MOCK_DATA.updatePoints.findIndex(p => p.id === pointId && p.updateId === updateId);
+    if (index >= 0) {
+      MOCK_DATA.updatePoints.splice(index, 1);
+      return { success: true };
+    }
+    return { error: 'Update point not found' };
   }
 };
 

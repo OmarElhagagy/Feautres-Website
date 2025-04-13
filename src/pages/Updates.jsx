@@ -15,7 +15,8 @@ function Updates() {
         setUpdates(response.data || []);
         setError('');
       } catch (err) {
-        setError(err.message || 'Failed to load updates');
+        console.error('Error fetching updates:', err);
+        setError('Failed to load updates');
       } finally {
         setLoading(false);
       }
@@ -29,27 +30,36 @@ function Updates() {
         await api.deleteUpdate(id);
         setUpdates(updates.filter(update => update.id !== id));
       } catch (err) {
-        setError(err.message || 'Failed to delete update');
+        console.error('Error deleting update:', err);
+        setError('Failed to delete update');
       }
     }
   };
 
-  if (loading) return <div className="text-center py-10">Loading...</div>;
-  if (error) return <div className="text-red-500 text-center py-10">{error}</div>;
+  if (loading) return <div className="text-center py-10">Loading updates...</div>;
 
   return (
-    <div>
+    <div className="container mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Updates</h1>
         <Link to="/updates/new" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
           + Add Update
         </Link>
       </div>
-      {updates.length > 0 ? (
-        <UpdateList updates={updates} onDelete={handleDeleteUpdate} />
-      ) : (
-        <p className="text-gray-500">No updates found.</p>
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
       )}
+      
+      <div className="bg-white p-6 rounded shadow">
+        {updates.length > 0 ? (
+          <UpdateList updates={updates} onDelete={handleDeleteUpdate} />
+        ) : (
+          <p className="text-gray-500 text-center py-4">No updates found.</p>
+        )}
+      </div>
     </div>
   );
 }
