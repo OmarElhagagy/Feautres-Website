@@ -1,5 +1,5 @@
 console.log('Starting server.ts - Debug Version 3');
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -7,14 +7,13 @@ import router from './router';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import config from './config';
-import { protect, login as authLogin } from './modules/auth.js';
+import { protect } from './modules/auth.js';
 import { createNewUser, signin } from './handlers/user.ts';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { API_CONFIG, API_ENDPOINTS } from './config/api.ts';
-import { json, urlencoded } from 'body-parser';
 import { handleInputErrors } from './middleware/validation';
 import { body } from 'express-validator/check';
 
