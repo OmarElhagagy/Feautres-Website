@@ -70,11 +70,6 @@ The Features Website is a modern web platform that allows users to:
    PORT=5000
    STAGE=development
    ```
-   
-   **Important security notes:**
-   - Never commit your `.env` file to version control
-   - Use strong, unique values for JWT_SECRET (you can generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
-   - Use different database credentials for development and production
 
 4. **Initialize the database**
    Create a PostgreSQL database and then run:
