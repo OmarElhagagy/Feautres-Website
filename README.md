@@ -51,15 +51,33 @@ The Features Website is a modern web platform that allows users to:
    ```
 
 3. **Set up environment variables**
-   Create a `.env` file in the root directory with the following variables:
+   Create a `.env` file in the root directory based on the provided `.env.example`:
+   ```bash
+   cp .env.example .env
    ```
-   DATABASE_URL="postgresql://username:password@localhost:5432/your_database"
+   
+   Then edit the `.env` file and fill in your own values:
+   ```
+   # Database Configuration
+   DATABASE_URL=postgresql://username:password@localhost:5432/database_name?schema=public
+   TEST_DATABASE_URL=postgresql://username:password@localhost:5432/test_database_name?schema=public
+   
+   # Authentication
+   JWT_SECRET=your_secure_random_string_here
+   TEST_JWT_SECRET=your_test_secure_random_string_here
+   
+   # Server Settings
    PORT=5000
-   JWT_SECRET=your-jwt-secret
-   NODE_ENV=development
+   STAGE=development
    ```
+   
+   **Important security notes:**
+   - Never commit your `.env` file to version control
+   - Use strong, unique values for JWT_SECRET (you can generate one with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+   - Use different database credentials for development and production
 
 4. **Initialize the database**
+   Create a PostgreSQL database and then run:
    ```bash
    npm run prisma:generate
    npm run prisma:migrate
@@ -139,6 +157,22 @@ features-website/
 - `PUT /api/updatepoint/:id` - Update update point
 - `DELETE /api/updatepoint/:id` - Delete update point
 
+## Security Considerations
+
+This project implements several security measures:
+- JWT-based authentication
+- Password hashing with bcrypt
+- Environment-based configuration
+- Helmet for secure HTTP headers
+- Input validation with express-validator
+
+When deploying to production, make sure to:
+1. Use HTTPS
+2. Set strong, unique JWT secrets
+3. Configure proper CORS settings
+4. Use proper database credentials with limited permissions
+5. Regularly update dependencies
+
 ## Testing
 
 Run the test suite with:
@@ -168,10 +202,35 @@ docker build -t features-website .
 docker run -p 5000:5000 features-website
 ```
 
-## License
+## Troubleshooting
 
-This project is licensed under the ISC License.
+### Common Issues
+
+1. **Database Connection Errors**
+   - Check that PostgreSQL is running
+   - Verify your DATABASE_URL in the .env file
+   - Ensure the database exists and has proper permissions
+
+2. **Authentication Issues**
+   - Ensure JWT_SECRET is set in your .env file
+   - Check for token expiration
+   - Verify the token is being sent in the Authorization header
+
+3. **Build Errors**
+   - Clear the dist directory and rebuild
+   - Check TypeScript errors with `npm run typecheck`
+   - Verify all dependencies are installed
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the ISC License.

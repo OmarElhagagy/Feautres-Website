@@ -1,14 +1,14 @@
 ### Get a user
 GET http://localhost:4000/api/product
-Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3ODNkMTkzLWVjMWMtNGJkYS1hNDI2LTEzNjgzMWRiMjU0NSIsInVzZXJuYW1lIjoieW91c2VmIiwiaWF0IjoxNzM5MjY5MzMwfQ.pbtNmDBcOZ6UZOkbFZY9q-kX7nm0Erd-c1v0QgYalFw
+Authorization:Bearer YOUR_JWT_TOKEN_HERE
 
 ### Create user
 POST http://localhost:4000/user
 Content-Type: application/json
 
 {
-	"username": "yousef",
-	"password": "passo"
+	"username": "test_user",
+	"password": "password123"
 }
 
 ### Signin
@@ -16,47 +16,45 @@ POST http://localhost:4000/sigin
 Content-Type: application/json
 
 {
-	"username": "yousef",
-	"password": "passo"
-
+	"username": "test_user",
+	"password": "password123"
 }
 
 ### GET a product
 GET http://localhost:4000/api/product
 Content-Type: application/json
-Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3ODNkMTkzLWVjMWMtNGJkYS1hNDI2LTEzNjgzMWRiMjU0NSIsInVzZXJuYW1lIjoieW91c2VmIiwiaWF0IjoxNzM5MjcyODg5fQ.n5sr_JwbrrfO4bUqEMQXQ1tlnwGxZyzg9fB0oXiD8LY
-
-
+Authorization:Bearer YOUR_JWT_TOKEN_HERE
 
 ### UPDATE a product
-PUT http://localhost:4000/api/product/fjfk
+PUT http://localhost:4000/api/product/product_id_here
 Content-Type: application/json
-Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3ODNkMTkzLWVjMWMtNGJkYS1hNDI2LTEzNjgzMWRiMjU0NSIsInVzZXJuYW1lIjoieW91c2VmIiwiaWF0IjoxNzM5MjY5MzMwfQ.pbtNmDBcOZ6UZOkbFZY9q-kX7nm0Erd-c1v0QgYalFw
+Authorization:Bearer YOUR_JWT_TOKEN_HERE
 
 ### CREATE a product
 POST http://localhost:4000/api/product
 Content-Type: application/json
-Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3ODNkMTkzLWVjMWMtNGJkYS1hNDI2LTEzNjgzMWRiMjU0NSIsInVzZXJuYW1lIjoieW91c2VmIiwiaWF0IjoxNzM5MjcyODg5fQ.n5sr_JwbrrfO4bUqEMQXQ1tlnwGxZyzg9fB0oXiD8LY
+Authorization:Bearer YOUR_JWT_TOKEN_HERE
 
 {
-	"name": "firstProduct"
+	"name": "Test Product"
 }
+
 ### create a product
 POST http://localhost:4000/api/product
 Content-Type: application/json
-Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3ODNkMTkzLWVjMWMtNGJkYS1hNDI2LTEzNjgzMWRiMjU0NSIsInVzZXJuYW1lIjoieW91c2VmIiwiaWF0IjoxNzM5Mzg3MjkwfQ.aAvWtuMDhEn-UFWwzv3u8nr5A4S5I3oN6uBDoU6GUIU
+Authorization:Bearer YOUR_JWT_TOKEN_HERE
 
 {
-	"name": "my newest product"
+	"name": "Another Test Product"
 }
 
 ### create an update
 POST http://localhost:4000/api/update
 Content-Type: application/json
-Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3ODNkMTkzLWVjMWMtNGJkYS1hNDI2LTEzNjgzMWRiMjU0NSIsInVzZXJuYW1lIjoieW91c2VmIiwiaWF0IjoxNzM5NDUyNzkxfQ.1BydqiLbjErK1eD3WeEpQAxcIhi_fRrdutMHnmy07IU
+Authorization:Bearer YOUR_JWT_TOKEN_HERE
 
 {
 	"title": "new feature",
 	"body": "latest feature",
-	"productId": "ee591a2a-52c3-45b6-a5a7-ba0082c03499"
+	"productId": "your_product_id_here"
 }
