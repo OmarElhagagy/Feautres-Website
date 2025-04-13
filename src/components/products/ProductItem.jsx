@@ -6,10 +6,13 @@ function ProductItem({ product, onDelete }) {
       <div className="p-6">
         <h2 className="text-xl font-bold mb-2">{product.name}</h2>
         <div className="text-sm text-gray-500 mb-4">
-          Created on {new Date(product.createdAt).toLocaleDateString()}
+          {product.createdAt ? 
+            `Created on ${new Date(product.createdAt).toLocaleDateString()}` : 
+            `Version: ${product.version || 'N/A'}`
+          }
         </div>
         <div className="mb-4">
-          <span className="text-gray-700 font-medium">{product.updates.length}</span> updates
+          <span className="text-gray-700 font-medium">{product.updates?.length || 0}</span> updates
         </div>
         <div className="flex space-x-2">
           <Link

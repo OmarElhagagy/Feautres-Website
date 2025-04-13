@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 function ProductForm({ onSubmit, initialData = { name: '' }, submitText = 'Create Product' }) {
   const [formData, setFormData] = useState(initialData);
 
