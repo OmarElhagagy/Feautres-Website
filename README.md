@@ -1,55 +1,177 @@
-# Features Website Backend
+# Features Website
 
-## **Overview**
-Welcome to the **Features Website Backend**! This project powers a dynamic, feature-rich website with a backend inspired by the functionality of [Chronos](https://chronos.framer.website/). Built with modern tools and hosted on **Azure**, it’s designed to be scalable and efficient. **Note**: This is currently a backend-only implementation—a frontend is in the works!
+A full-stack web application with user authentication, product management, and update tracking built with Node.js, Express, React, and PostgreSQL.
 
-## **About**
-This project is a **passion-driven effort** to build a high-quality backend for a features-focused website. Leveraging **TypeScript** and **Node.js**, it combines type safety with the flexibility of JavaScript to create a reliable foundation. Inspired by the elegance of **Chronos**, we’re crafting a system that’s both developer-friendly and ready for real-world use.
+## Overview
 
-## **Purpose**
-The goal is to create a **robust backend system** to support a features-focused website. Drawing from **Chronos’ seamless performance**, this project handles data, APIs, and business logic with flexibility and future growth in mind.
+The Features Website is a modern web platform that allows users to:
+- Register and authenticate
+- Create and manage products
+- Track product updates and improvements
+- Manage detailed update points for each product update
 
-## **Features (Planned & In Progress)**
-- **Dynamic Content Management**: Efficiently manage and serve content.
-- **API-Driven Design**: RESTful endpoints for seamless frontend integration.
-- **Scalable Architecture**: Built to grow, inspired by Chronos’ backend approach.
-- **User Interaction Support**: Logic for user accounts and engagement (details TBD).
+## Tech Stack
 
-## **Backend Inspiration**
-This project is influenced by the backend of [Chronos](https://chronos.framer.website/), a modern website built with **Framer**. We aim to mirror its efficiency and modularity while crafting our own unique system.
+### Backend
+- **Framework**: Express.js with TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT-based auth with bcrypt for password hashing
+- **Validation**: express-validator for input validation
+- **Security**: Helmet for HTTP security headers
 
-## **Current Status**
-- **Frontend**: Not yet implemented—watch this space!
-- **Backend**: In active development with core features being built.
+### Frontend
+- **Framework**: React with TypeScript/JSX
+- **Routing**: React Router
+- **Styling**: Tailwind CSS
+- **Build Tool**: Vite
 
-## **Tech Stack**
-- **Language**: **TypeScript** (running on **Node.js**)
-- **Framework**: **Express.js**
-- **Database**: **PostgreSQL**
-- **Hosting**: **Microsoft Azure**
+### DevOps
+- **Containerization**: Docker support
+- **Testing**: Jest and Supertest
+- **Deployment**: Azure-ready with certificate support
 
-## **Website**
-Check out the project (backend in action) here: [**Features Website**](https://your-website-link-here.azurewebsites.net)
+## Installation
 
-## **Getting Started**
-1. **Clone the Repository**:
+### Prerequisites
+- Node.js (v16+)
+- npm or yarn
+- PostgreSQL database
+
+### Setup Steps
+
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
+   git clone https://github.com/yourusername/features-website.git
+   cd features-website
+   ```
 
-## **Configure Environment**
-Copy .env.example to .env and add your settings (e.g., PostgreSQL credentials, Azure config):
-bash
-DB_HOST=your-db-host
-DB_USER=your-db-user
-DB_PASSWORD=your-db-password
-DB_NAME=your-db-name
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## **Run the Backend**
-Start the backend with:
+3. **Set up environment variables**
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   DATABASE_URL="postgresql://username:password@localhost:5432/your_database"
+   PORT=5000
+   JWT_SECRET=your-jwt-secret
+   NODE_ENV=development
+   ```
+
+4. **Initialize the database**
+   ```bash
+   npm run prisma:generate
+   npm run prisma:migrate
+   ```
+
+5. **Development mode**
+   ```bash
+   npm run dev
+   ```
+   This will start both frontend and backend in development mode with hot reloading.
+
+## Project Structure
+
+```
+features-website/
+├── prisma/                 # Prisma schema and migrations
+├── src/
+│   ├── assets/             # Static assets
+│   ├── components/         # React components
+│   ├── config/             # Configuration files
+│   ├── context/            # React contexts
+│   ├── handlers/           # API request handlers
+│   ├── middleware/         # Express middleware
+│   ├── modules/            # Core functionality modules
+│   ├── pages/              # React route pages
+│   ├── types/              # TypeScript types and interfaces
+│   ├── utils/              # Utility functions
+│   ├── App.jsx             # Main React component
+│   ├── server.ts           # Express server entry point
+│   └── main.jsx            # Frontend entry point
+├── dist/                   # Compiled output
+├── public/                 # Public assets
+└── ...config files
+```
+
+## Core Features
+
+### User Management
+- Registration with username/password
+- Secure authentication with JWT
+- Protected routes for authenticated users
+
+### Product Management
+- Create, read, update, and delete products
+- Associate products with users
+- Organize product updates
+
+### Update Tracking
+- Track product updates with statuses (IN_PROGRESS, SHIPPED, DEPRECATED)
+- Add detailed update points to each update
+- Manage update versions and assets
+
+## API Endpoints
+
+### Authentication
+- `POST /signin` - User login
+- `POST /user` - User registration
+
+### Products
+- `GET /api/product` - Get all products
+- `GET /api/product/:id` - Get product by ID
+- `POST /api/product` - Create new product
+- `PUT /api/product/:id` - Update product
+- `DELETE /api/product/:id` - Delete product
+
+### Updates
+- `GET /api/update` - Get all updates
+- `GET /api/update/:id` - Get update by ID
+- `POST /api/update` - Create new update
+- `PUT /api/update/:id` - Update update
+- `DELETE /api/update/:id` - Delete update
+
+### Update Points
+- `GET /api/updatepoint` - Get all update points
+- `GET /api/updatepoint/:id` - Get update point by ID
+- `POST /api/updatepoint` - Create new update point
+- `PUT /api/updatepoint/:id` - Update update point
+- `DELETE /api/updatepoint/:id` - Delete update point
+
+## Testing
+
+Run the test suite with:
 ```bash
-npm run dev
+npm test
+```
 
-## **Install Dependencies**
-Run the following command to install the project dependencies:
+## Production Deployment
+
+1. **Build the application**
+   ```bash
+   npm run build
+   ```
+   This builds both the frontend and backend.
+
+2. **Start the production server**
+   ```bash
+   npm start
+   ```
+   This runs the server from the compiled files in the dist directory.
+
+### Docker Deployment
+
+The project includes Docker support:
 ```bash
-npm install
+docker build -t features-website .
+docker run -p 5000:5000 features-website
+```
+
+## License
+
+This project is licensed under the ISC License.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
