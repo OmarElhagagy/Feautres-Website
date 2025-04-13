@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 function UpdateForm({ onSubmit, initialData = { productId: '', title: '', description: '', status: 'IN_PROGRESS' }, products, submitText = 'Create Update' }) {
   const [formData, setFormData] = useState(initialData);
 

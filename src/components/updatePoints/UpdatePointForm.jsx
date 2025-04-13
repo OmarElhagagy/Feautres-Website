@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 function UpdatePointForm({ onSubmit, initialData = { name: '', description: '', status: 'IN_PROGRESS' }, submitText = 'Create Update Point' }) {
   const [formData, setFormData] = useState(initialData);
 

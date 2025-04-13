@@ -6,22 +6,43 @@ import UpdatePointList from '../components/updatePoints/UpdatePointList';
 function UpdateDetail() {
   const { id } = useParams();
   const [update, setUpdate] = useState(null);
+  const [updatePoints, setUpdatePoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchUpdate = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.getUpdate(id);
-        setUpdate(response.data);
+        setLoading(true);
+        // Fetch update
+        const updateResponse = await api.getUpdate(id);
+        if (!updateResponse.data) {
+          setError('Update not found');
+          setLoading(false);
+          return;
+        }
+        setUpdate(updateResponse.data);
+        
+        // Fetch update points for this update
+        try {
+          const pointsResponse = await api.getUpdatePoints(id);
+          setUpdatePoints(pointsResponse.data || []);
+        } catch (pointsErr) {
+          console.error('Error fetching update points:', pointsErr);
+          // Don't set error for points, just use empty array
+          setUpdatePoints([]);
+        }
+        
         setError('');
       } catch (err) {
+        console.error('Error fetching update:', err);
         setError(err.message || 'Failed to load update');
       } finally {
         setLoading(false);
       }
     };
-    fetchUpdate();
+    
+    fetchData();
   }, [id]);
 
   if (loading) return <div className="text-center py-10">Loading...</div>;
@@ -37,19 +58,23 @@ function UpdateDetail() {
             update.status === 'SHIPPED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
           }`}
         >
-          {update.status.replace('_', ' ')}
+          {update.status ? update.status.replace('_', ' ') : 'PENDING'}
         </span>
       </div>
-      <p className="text-gray-700 mb-6">{update.description}</p>
-      <p className="text-sm text-gray-500 mb-8">Last updated: {new Date(update.updatedAt).toLocaleString()}</p>
+      <p className="text-gray-700 mb-6">{update.description || update.body || 'No description available'}</p>
+      {update.updatedAt ? (
+        <p className="text-sm text-gray-500 mb-8">Last updated: {new Date(update.updatedAt).toLocaleString()}</p>
+      ) : (
+        <p className="text-sm text-gray-500 mb-8">Version: {update.version || 'N/A'}</p>
+      )}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Update Points</h2>
         <Link to={`/updates/${id}/points/new`} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
           + Add Update Point
         </Link>
       </div>
-      {update.updatePoints && update.updatePoints.length > 0 ? (
-        <UpdatePointList updatePoints={update.updatePoints} />
+      {updatePoints.length > 0 ? (
+        <UpdatePointList updatePoints={updatePoints} />
       ) : (
         <p className="text-gray-500">No update points yet.</p>
       )}

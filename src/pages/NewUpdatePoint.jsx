@@ -10,9 +10,10 @@ function NewUpdatePoint() {
 
   const handleSubmit = async (formData) => {
     try {
-      await api.createUpdatePoint({ ...formData, updateId });
+      await api.createUpdatePoint(updateId, formData);
       navigate(`/updates/${updateId}`);
     } catch (err) {
+      console.error('Error creating update point:', err);
       setError(err.message || 'Failed to create update point');
     }
   };
